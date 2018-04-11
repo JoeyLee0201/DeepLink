@@ -6,10 +6,12 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import cn.edu.fudan.se.MELink.util.Words;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.util.CoreMap;
 
 public class StandfordParser {
     private Pattern noWordPattern=Pattern.compile(".*[a-zA-Z]+.*");
@@ -26,15 +28,29 @@ public class StandfordParser {
 		
 		Annotation document = new Annotation(s);
         pipeline.annotate(document);
-        List<CoreLabel> tokens = document.get(TokensAnnotation.class);
-        
-        for (CoreLabel token : tokens) {
-            String lemma = token.lemma().toLowerCase();
-            if(!needDelete(lemma)){
-            	result.add(lemma);
-            	System.out.println(lemma);
-            }
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+
+        for(CoreMap sentence: sentences) {
+        	// one sequence
+        	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
+        	    String lemma = token.lemma().toLowerCase();
+//        	    if(!needDelete(lemma)){
+                	result.add(lemma);
+                	System.out.print(lemma+" ");
+//                }
+        	}
+        	System.out.println();
         }
+        
+        
+//        List<CoreLabel> tokens = document.get(TokensAnnotation.class);
+//        for (CoreLabel token : tokens) {
+//            String lemma = token.lemma().toLowerCase();
+//            if(!needDelete(lemma)){
+//            	result.add(lemma);
+//            	System.out.println(lemma);
+//            }
+//        }
         return result;
 	}
 	public boolean needDelete(String s){
