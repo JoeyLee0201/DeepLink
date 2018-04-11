@@ -1,8 +1,9 @@
 package cn.edu.fudan.se.MELink.webuild;
 
-import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -21,7 +22,7 @@ public class CorpusBuilder {
 	
 	public void build() throws IOException{
 		List<ProjectInfo> projects = ProjectInfoDao.getInstance().selectAllInfo();
-		try(BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(fileName, true))){
+		try(BufferedWriter bos = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName, true),"utf-8"))){
 			for(ProjectInfo p : projects){
 				GitReader gitReader = new GitReader(PathUtils.changeHighWebsite2Path(p.getWebsite()));
 				try {
@@ -34,8 +35,8 @@ public class CorpusBuilder {
 				
 				List<RevCommit> commits = gitReader.getCommits();
 				for(RevCommit commit: commits){
-					bos.write(commit.getFullMessage().getBytes());
-					bos.write("\n".getBytes());
+					bos.write(commit.getFullMessage());
+					bos.write("\n");
 				}
 			}
 		}

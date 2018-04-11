@@ -34,10 +34,10 @@ public class StandfordParser {
         	// one sequence
         	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
         	    String lemma = token.lemma().toLowerCase();
-//        	    if(!needDelete(lemma)){
+        	    if(!needDelete(lemma)){
                 	result.add(lemma);
                 	System.out.print(lemma+" ");
-//                }
+                }
         	}
         	System.out.println();
         }
@@ -53,9 +53,9 @@ public class StandfordParser {
 //        }
         return result;
 	}
-	public boolean needDelete(String s){
+	private boolean needDelete(String s){
 		// delete short
-		if(s==null||s.length()<3) return true;
+//		if(s==null||s.length()<3) return true;
 		// delete stop words 
 		if(Words.STOP_WORD.contains(s)) return true;
 		// delete no word 
