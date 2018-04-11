@@ -20,12 +20,17 @@ public class FileOperator {
 		parser = new StandfordParser();
 	}
 	public void deal() throws IOException{
-		try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(newFile, true),"utf-8"));
+		// clear toDealFile 
+		try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(newFile),"utf-8"));
 				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(toDealFile),"utf-8"))){
 			br.lines().forEach(s->{
 				try {
-					bw.write(StringUtils.link(parser.parse(s)));
-					bw.write("\n");
+					if(s!=null && s.length()!=0){
+//						System.out.println("\n".equals(s)+"\t"+s.length()+":"+s);
+						bw.write(StringUtils.link(parser.parse(s)));
+					}else{
+						bw.write("\n");
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

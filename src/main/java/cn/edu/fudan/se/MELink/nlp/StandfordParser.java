@@ -6,7 +6,9 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import cn.edu.fudan.se.MELink.util.Words;
+import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -28,27 +30,23 @@ public class StandfordParser {
 		
 		Annotation document = new Annotation(s);
         pipeline.annotate(document);
+        
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-
         for(CoreMap sentence: sentences) {
         	// one sequence
         	for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
         	    String lemma = token.lemma().toLowerCase();
-        	    if(!needDelete(lemma)){
+        	    if(!needDelete(lemma) && !needDelete(token.originalText().toLowerCase())){
                 	result.add(lemma);
-                	System.out.print(lemma+" ");
                 }
         	}
-        	System.out.println();
         }
-        
         
 //        List<CoreLabel> tokens = document.get(TokensAnnotation.class);
 //        for (CoreLabel token : tokens) {
 //            String lemma = token.lemma().toLowerCase();
 //            if(!needDelete(lemma)){
 //            	result.add(lemma);
-//            	System.out.println(lemma);
 //            }
 //        }
         return result;
