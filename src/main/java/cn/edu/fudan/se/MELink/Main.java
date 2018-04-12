@@ -15,11 +15,12 @@ public class Main {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
-//    	System.out.println(new StandfordParser().parse("2.x: marble additions and updates (12/11) (#5759)"));
-    	try {
-			new FileOperator("corpus/model.dat","corpus/words.dat").deal();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    	System.out.println(StandfordParser.parse("Removed use of deprecated API from tests & operators, fixed year in head..."));
+//    	try {
+//			new FileOperator("corpus/model.dat","corpus/words2.dat").deal();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//    	System.out.println("============================================over===================================================");
     }
 }

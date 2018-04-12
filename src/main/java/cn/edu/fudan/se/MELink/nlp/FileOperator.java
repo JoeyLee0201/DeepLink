@@ -13,11 +13,9 @@ import cn.edu.fudan.se.MELink.util.StringUtils;
 public class FileOperator {
 	private String toDealFile;
 	private String newFile;
-	private StandfordParser parser;
 	public FileOperator(String toDealFile, String newFile){
 		this.toDealFile = toDealFile;
 		this.newFile = newFile;
-		parser = new StandfordParser();
 	}
 	public void deal() throws IOException{
 		// clear toDealFile 
@@ -27,10 +25,9 @@ public class FileOperator {
 				try {
 					if(s!=null && s.length()!=0){
 //						System.out.println("\n".equals(s)+"\t"+s.length()+":"+s);
-						bw.write(StringUtils.link(parser.parse(s)));
-					}else{
-						bw.write("\n");
+						bw.write(StringUtils.link(StandfordParser.parse(s)));
 					}
+					bw.write("\n");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
