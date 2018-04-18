@@ -216,6 +216,8 @@ tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 # wordtokenizer = RegexpTokenizer(pattern)
 lemmatizer = WordNetLemmatizer()
 
+codePattern = re.compile(r'<code>([\s\S]*?)</code>', re.I)
+
 def isDelete(word):
     if word in stop_word:
         return True
@@ -236,3 +238,14 @@ def preprocess(paragraph):
         result.append(temp)
     return result
 
+def processHTML(html):
+      codes = codePattern.findall(html, re.I)
+      texts = re.sub(r'(<pre>\s*?<code>[\s\S]*?</code>\s*?</pre>)', '', html, 0, re.I)
+      texts = re.sub(r'(<.*?>)', '', texts, 0, re.I)
+      texts = re.sub(r'(</.*?>)', '', texts, 0, re.I)
+      return (codes, texts)
+
+if __name__ == '__main__':
+    print processHTML('''Examples shown in the javadoc for <code>ReplayingDecoder</code> seems to be wrong. In the document it shows <code>IntegerHeaderFrameDecoder, MyDecoder</code> taking multiple parameters where as in reality it can only accept one. I'm working with versions 4.0.0.CR3, 4.0.0.CR5.
+ 
+ ''')
