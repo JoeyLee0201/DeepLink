@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-  
-from gensim import corpora, models, similarities  
+from gensim import corpora, models, similarities, matutils
 import logging  
 from collections import defaultdict    
 import preprocessor
@@ -57,6 +57,10 @@ index = similarities.MatrixSimilarity(corpus_tfidf)
 new_vec_tfidf=tfidf[new_vec]#将要比较文档转换为tfidf表示方法  
 #计算要比较的文档与语料库中每篇文档的相似度  
 sims = index[new_vec_tfidf]  
-print(list(enumerate(sims)))
+# print(list(enumerate(sims)))
+print(sorted(enumerate(sims), key=lambda item: -item[1]))
 #[ 0.81649655  0.31412902  0.          0.34777319  0.          0.          0.  
-#  0.          0.        ]  
+#  0.          0.        ] 
+print new_vec_tfidf
+for t in corpus_tfidf:
+    print matutils.cossim(new_vec_tfidf,t)

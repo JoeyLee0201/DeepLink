@@ -6,11 +6,8 @@ def buildCorpus(originalFile, corpusFile):
     original = open(originalFile, "rb") 
     corpus = open(corpusFile, "w") 
     try:
-        i = 1
         for line in original:
             if line: #不是空行
-                print i
-                i=i+1
                 sentences = preprocessor.preprocess(line.decode('utf-8'))
                 for sentence in sentences:
                     if len(sentence):#不是空列表
