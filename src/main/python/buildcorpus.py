@@ -45,5 +45,24 @@ def getPath(s):
     temp = re.sub(r'https://github.com/', '', s, 0, re.I)
     return "/home/fdse/Downloads/high/high_quality_repos/"+temp;
 
+def buildModelFromFile(filename):
+    with open(filename, "rb") as corpus:
+        repoId = corpus.readline()
+        while repoId:
+            repoId = repoId.strip().strip('\n')
+            commitId = corpus.readline().strip().strip('\n')
+            line = corpus.readline().strip('\n')
+            content = ''
+            while line:
+                if not len(line.strip()):
+                    break
+                content = content +' '+line
+                line = corpus.readline().strip('\n')
+            print "sum:",repoId,commitId,content
+            word_list = content.strip().split(' ')
+            print word_list
+            repoId = corpus.readline()
+    print "end"
+
 if __name__ == '__main__':
-    print buildFromGit()
+    print buildModelFromFile('corpusLabel.dat')

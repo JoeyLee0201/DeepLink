@@ -37,4 +37,5 @@ print "model : ",model
 
 sentences = preprocessor.preprocess('I fixed a bug. I fixed the issue. She like to sing a love song to the boy.')
 print model.wmdistance(sentences[0], sentences[1])
+print model.wmdistance(sentences[0], sentences[2])
 print model.wmdistance(sentences[1], sentences[2])

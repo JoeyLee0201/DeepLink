@@ -24,4 +24,4 @@ def buildCorpus(originalFile, corpusFile):
     return False
 
 if __name__ == '__main__':
-    print preprocessor.preprocess("This is tests. I don't fix any bugs. I just want to test the examples. many I you")
+    print buildCorpus('../model.dat','../corpus.dat')

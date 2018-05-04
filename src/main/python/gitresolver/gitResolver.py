@@ -2,6 +2,7 @@
 
 import git
 import time
+import datetime
 
 class GitResolver:
     def __init__(self, gitPath):
@@ -37,6 +38,8 @@ class GitResolver:
                 result.append(diff)
         return result
 
-    def getCommitDate(self, commit):
-        commitdDate = time.gmtime(commit.committed_date)
-        return str(commitdDate.tm_year)+"-"+str(commitdDate.tm_mon)+"-"+str(commitdDate.tm_mday)
+    def getDateTime(self, commit):
+        return datetime.datetime.fromtimestamp(commit.committed_date)
+
+    def getOneCommit(self, sha):
+        return self.repo.commit(sha)
