@@ -52,12 +52,12 @@ def selectAllIssueInOneRepo(repoId):
         cursor.execute(SQL % repoId)
         results = cursor.fetchall()
         return results
-    except Exception,e:
+    except Exception, e:
         print e
 
 def selectTrueLinkInOneIssue(issueIndex):
     SQL = """
-    select repository_id,issue_index,created_at,commit_id from issue_event where issue_index = '%s' and commit_id is not null
+    select repository_id,issue_index,created_at,commit_id,commit_url from issue_event where issue_index = '%s' and commit_id is not null
     """
     try:
         cursor.execute(SQL % issueIndex)
@@ -65,6 +65,18 @@ def selectTrueLinkInOneIssue(issueIndex):
         return results
     except Exception,e:
         print e
+
+def selectShaInOneIssue(issueIndex):
+    SQL = """
+    select commit_id from issue_event where issue_index = '%s' and commit_id is not null
+    """
+    try:
+        cursor.execute(SQL % issueIndex)
+        results = cursor.fetchall()
+        return results
+    except Exception,e:
+        print e
+
 
 def selectCommentInOneIssue(issueIndex):
     SQL = """
@@ -77,6 +89,19 @@ def selectCommentInOneIssue(issueIndex):
     except Exception,e:
         print e
 
+
+def selectExistIssueOnCommit(cou):
+    SQL = """
+    select repository_id, commit_id, issue_index from issue_event where repository_id = %d and commit_id = '%s'
+    """ % cou
+    try:
+        cursor.execute(SQL)
+        results = cursor.fetchall()
+        return results
+    except Exception, e:
+        print e
+
+
 def countTrueLinkInOneIssue(issueIndex):
     SQL = """
     select count(event_id) from issue_event where issue_index = '%s' and commit_id is not null
@@ -87,6 +112,37 @@ def countTrueLinkInOneIssue(issueIndex):
         return results
     except Exception,e:
         print e
+
+
+# id, date, date
+def selectAllIssueInOneRepoDate(cou):
+    SQL = """
+    select repository_id,issue_index from issue where repository_id = %d and type = 'issue'
+    and (('%s' between DATE_SUB(created_at, INTERVAL 7 DAY) and DATE_ADD(created_at, INTERVAL 7 DAY)) 
+    or ('%s' between DATE_SUB(closed_at, INTERVAL 7 DAY) and DATE_ADD(closed_at, INTERVAL 7 DAY)))
+    """
+    try:
+        cursor.execute(SQL % cou)
+        results = cursor.fetchall()
+        return results
+    except Exception, e:
+        print e
+
+
+# id, date, date
+def selectAllCommentInOneRepoDate(cou):
+    SQL = """
+    select repository_id,issue_index from issue_comment where repository_id = %d 
+    and (('%s' between DATE_SUB(created_at, INTERVAL 7 DAY) and DATE_ADD(created_at, INTERVAL 7 DAY)) 
+    or ('%s' between DATE_SUB(updated_at, INTERVAL 7 DAY) and DATE_ADD(updated_at, INTERVAL 7 DAY)))
+    """
+    try:
+        cursor.execute(SQL % cou)
+        results = cursor.fetchall()
+        return results
+    except Exception, e:
+        print e
+
 
 def close():
     cursor.close()
@@ -102,5 +158,9 @@ if __name__ == '__main__':
     #         links = selectTrueLinkInOneIssue(issue[1])
     #         print len(links),'\n'
     # print len(selectAllIssueInOneRepo(1459486))
-    print selectCommentInOneIssue('JakeWharton/ActionBarSherlock/issues/3')
+    # links = list(selectShaInOneIssue('JakeWharton/ActionBarSherlock/issues/3'))
+    # trueLinks = []
+    # for link in links:
+    #     trueLinks.append(link[0])
+    print selectAllIssueInOneRepoDate((1451060, '2011-03-18 11:45:51', '2011-03-18 11:45:51'))
     close()

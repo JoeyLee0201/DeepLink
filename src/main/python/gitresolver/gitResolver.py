@@ -22,16 +22,18 @@ class GitResolver:
         diffs = []
         commits = self.getCommits()
         for commit in commits:
-            if len(commit.parents) == 1:#删除merge节点
+            if len(commit.parents) == 1:
+                # 删除merge节点
                 parent = commit.parents[0]
                 diffs.append(commit.diff(parent))
         return diffs
 
     def getOneDiff(self, commit):
-        if len(commit.parents) != 1 :
-            return None
+        if len(commit.parents) != 1:
+            return []
         # print self.repo.git.show(commit)
-        diffs = list(commit.parents[0].diff(commit, create_patch=True, ignore_blank_lines=True, ignore_space_at_eol=True, diff_filter='cr').iter_change_type('M'))
+        diffs = list(commit.parents[0].diff(commit, create_patch=True, ignore_blank_lines=True,
+                                            ignore_space_at_eol=True, diff_filter='cr', unified=0).iter_change_type('M'))
         result = []
         for diff in diffs:
             if diff.a_path.endswith('.java'):

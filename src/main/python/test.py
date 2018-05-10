@@ -14,10 +14,12 @@ def getDiffday(date1, date2):
 commit = repo.getCommits()[0]
 diffs = repo.getOneDiff(commit)
 print preprocessor.preprocess("I like it.\n\n\n\nI love it. I hate it.")
-print getDiffday(repo.getDateTime(commit),datetime.datetime.now())
+print str(repo.getDateTime(commit))
+print getDiffday(repo.getDateTime(commit), datetime.datetime.now())
 print commit.hexsha.encode("utf-8")
 print type(commit.hexsha.encode("utf-8"))
 print repo.getOneCommit(str(commit.hexsha.encode("utf-8"))).message
-    # if diff.change_type == 'M':
-    #     print diff.a_blob.data_stream.read().decode('utf-8'),"\n"
-    #     print diff.b_blob.data_stream.read().decode('utf-8'),"\n"
+for diff in diffs:
+    print diff.diff
+#     print diff.a_blob.data_stream.read().decode('utf-8')
+#     print diff.b_blob.data_stream.read().decode('utf-8')
