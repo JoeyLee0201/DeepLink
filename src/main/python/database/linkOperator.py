@@ -39,6 +39,32 @@ def selectRepoOver(num):
     except Exception,e:
         print e
 
+
+def count(tableName):
+    SQL = """
+        select count(*) from %s
+        """
+    try:
+        cursor.execute(SQL % tableName)
+        results = cursor.fetchone()
+        return results
+    except Exception, e:
+        print e
+
+
+def selectInScope(cou):
+    SQL = """
+        select repo_id,sha,issue_index from %s where id >= %d and id < %d
+        """
+    try:
+        cursor.execute(SQL % cou)
+        results = cursor.fetchall()
+        return results
+    except Exception, e:
+        print e
+
+
+
 def close():
     cursor.close()
     con.close()  
@@ -48,8 +74,11 @@ if __name__ == '__main__':
     # selectApichangeById(10)
     # selectApichangeByRepositoryAndType(-5, 'CHANGE_METHOD')
     # insertOneRepo((-1,'test',0,0))
-    print selectRepoOver(5000)
+    # print selectRepoOver(5000)
     # insertLink(('true_link',-1,'test','test'))
     # insertLink(('false_link',-1,'test','test'))
     # insertLink(('unknow_link',-1,'test','test'))
+    # print count('true_link')
+    # print count('false_link')
+    print len(selectInScope(('true_link', 2500, 2600)))
     close()

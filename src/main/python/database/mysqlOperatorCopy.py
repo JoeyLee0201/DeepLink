@@ -55,17 +55,6 @@ def selectAllIssueInOneRepo(repoId):
     except Exception, e:
         print e
 
-def selectOneIssue(issueIndex):
-    SQL = """
-    select repository_id,issue_index,created_at,closed_at,title,body,labels,type from issue where issue_index = '%s' and type = 'issue'
-    """
-    try:
-        cursor.execute(SQL % issueIndex)
-        results = cursor.fetchall()
-        return results
-    except Exception, e:
-        print e
-
 def selectTrueLinkInOneIssue(issueIndex):
     SQL = """
     select repository_id,issue_index,created_at,commit_id,commit_url from issue_event where issue_index = '%s' and commit_id is not null
@@ -173,6 +162,5 @@ if __name__ == '__main__':
     # trueLinks = []
     # for link in links:
     #     trueLinks.append(link[0])
-    # print selectAllIssueInOneRepoDate((1451060, '2011-03-18 11:45:51', '2011-03-18 11:45:51'))
-    print len(selectOneIssue('checkstyle/checkstyle/issues/270'))
+    print selectAllIssueInOneRepoDate((1451060, '2011-03-18 11:45:51', '2011-03-18 11:45:51'))
     close()

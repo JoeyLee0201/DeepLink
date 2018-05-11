@@ -14,8 +14,8 @@ def getVecs(model, corpus, size):
     return np.concatenate(vecs)  
 
 
-def test():  
-    model_dm = Doc2Vec.load("doc.model")  
+def testD():
+    model_dm = Doc2Vec.load("text.model")
     test_text = ['fix', 'bug']  
     inferred_vector_dm = model_dm.infer_vector(test_text)  
     print inferred_vector_dm  
@@ -38,18 +38,24 @@ def test():
 
 
 if __name__ == '__main__':  
-    print 'text start train'
-    texts = TaggedLineDocument('corpus/text.dat')
-    textModel = Doc2Vec(texts, min_count=1, dm=0, window=5, size=100, sample=1e-3, negative=5, workers=4)
-    # textModel.build_vocab(texts)
-    # textModel.train(texts)
-    textModel.save('text.model')
-    print 'text end train'
-
-    print 'code start train'
-    codes = TaggedLineDocument('corpus/code.dat')
-    codeModel = Doc2Vec(codes, min_count=1, dm=0, window=5, size=100, sample=1e-3, negative=5, workers=4)
-    # codeModel.build_vocab(codes)
-    # codeModel.train(codes)
-    codeModel.save('code.model')
-    print 'code end train'
+    # print 'text start train'
+    # texts = TaggedLineDocument('corpus/text.dat')
+    # textModel = Doc2Vec(texts, min_count=1, dm=0, window=5, size=100, sample=1e-3, negative=5, workers=4)
+    # # textModel.build_vocab(texts)
+    # # textModel.train(texts)
+    # textModel.save('text.model')
+    # print 'text end train'
+    #
+    # print 'code start train'
+    # codes = TaggedLineDocument('corpus/code.dat')
+    # codeModel = Doc2Vec(codes, min_count=1, dm=0, window=5, size=100, sample=1e-3, negative=5, workers=4)
+    # # codeModel.build_vocab(codes)
+    # # codeModel.train(codes)
+    # codeModel.save('code.model')
+    # print 'code end train'
+    model_dm = Doc2Vec.load("text.model")
+    test_text = []
+    inferred_vector_dm = model_dm.infer_vector(test_text)
+    print inferred_vector_dm
+    sims = model_dm.docvecs.most_similar([inferred_vector_dm], topn=10)
+    print sims
