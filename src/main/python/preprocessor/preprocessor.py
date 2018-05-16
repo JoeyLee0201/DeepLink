@@ -313,6 +313,44 @@ def processDiffCode(code):
     return result
 
 
+def processPreDiffCode(code):
+    code = re.sub(r'(\"[\s\S]*?\")', '', code, 0, re.I)
+    code = re.sub(r'(@@[\s\S]*?\n)', '', code, 0, re.I)
+    code = re.sub(r'(\+[\s\S]*?\n)', '', code, 0, re.I)
+    result = []
+    mis = methodInvocationCase.findall(code)
+    for mi in mis:
+        miWords = mi.split('\.')
+        for miWord in miWords:
+            toDeal = []
+            if camelCase1.match(miWord) or camelCase2.match(miWord):
+                toDeal = splitCode(miWord)
+            elif upperExtCase.match(miWord):
+                toDeal = splitFinalExt(miWord)
+            elif upperCase.match(miWord):
+                toDeal.append(miWord)
+            for deal in toDeal:
+                if not isDelete(deal.lower()):
+                    result.append(stemmer.stem(deal))
+
+    code = re.sub(r'([A-Za-z0-9_]+\.[A-Za-z0-9_]+)', '', code, 0, re.I)
+    sentences = tokenizer.tokenize(code)
+    for sentence in sentences:
+        words = nltk.regexp_tokenize(sentence, pattern)
+        for word in words:
+            toDeal = []
+            if camelCase1.match(word) or camelCase2.match(word):
+                toDeal = splitCode(word)
+            elif upperExtCase.match(word):
+                toDeal = splitFinalExt(word)
+            elif upperCase.match(word):
+                toDeal.append(word)
+            for deal in toDeal:
+                if not isDelete(deal.lower()):
+                    result.append(stemmer.stem(deal))
+    return result
+
+
 def processHTML(html):
       codes = codePattern.findall(html)
       texts = re.sub(r'(<pre>\s*?<code>[\s\S]*?</code>\s*?</pre>)', '', html, 0, re.I)
@@ -373,6 +411,13 @@ def splitFinalExt(ext):
 
 
 if __name__ == '__main__':
-    print processHTML('''Examples shown in the javadoc for <code>ReplayingDecoder</code> seems to be wrong. In the document it shows <code>IntegerHeaderFrameDecoder, MyDecoder</code> taking multiple parameters where as in reality it can only accept one. I'm working with versions 4.0.0.CR3, 4.0.0.CR5.
- 
- ''')
+    print processPreDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {
+    -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
+    -            "HTML_COMMENT", addToMyList.getHisName(20077));
+    +            "HTML_COMMENT", JavadocUtils.getTokenName(20078));
+     ''')
+    print processDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {
+    -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
+    -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
+    +            "HTML_COMMENT", JavadocUtils.getTokenName(20078));
+     ''')

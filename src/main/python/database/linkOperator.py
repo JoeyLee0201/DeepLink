@@ -40,6 +40,18 @@ def selectRepoOver(num):
         print e
 
 
+def selectOneRepo(id):
+    SQL = """
+    select repo_id,url from repo where repo_id = %d
+    """
+    try:
+        cursor.execute(SQL % id)
+        results = cursor.fetchall()
+        return results
+    except Exception, e:
+        print e
+
+
 def count(tableName):
     SQL = """
         select count(*) from %s
@@ -80,5 +92,6 @@ if __name__ == '__main__':
     # insertLink(('unknow_link',-1,'test','test'))
     # print count('true_link')
     # print count('false_link')
-    print len(selectInScope(('true_link', 2500, 2600)))
+    # print len(selectInScope(('true_link', 2500, 2600)))
+    print selectOneRepo(12983151)
     close()

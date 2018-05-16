@@ -175,7 +175,8 @@ def buildModelFromFile(filename):
 
 
 def buildIssueAndCommit():
-    repos = linkOperator.selectRepoOver(5000)
+    repos = linkOperator.selectOneRepo(12983151)
+    # repos = linkOperator.selectRepoOver(5000)
     textCorpus = open('text.dat', "w")
     codeCorpus = open('code.dat', "w")
     try:
@@ -198,8 +199,14 @@ def buildIssueAndCommit():
                     diffs = gitRe.getOneDiff(commit)
                     for diff in diffs:
                         diffCode = preprocessor.processDiffCode(diff.diff)
+                        preDiffCode = preprocessor.processPreDiffCode(diff.diff)
                         if len(diffCode):
                             for code in diffCode:
+                                codeCorpus.write(code)
+                                codeCorpus.write(" ")
+                            codeCorpus.write("\n")
+                        if len(preDiffCode):
+                            for code in preDiffCode:
                                 codeCorpus.write(code)
                                 codeCorpus.write(" ")
                             codeCorpus.write("\n")
