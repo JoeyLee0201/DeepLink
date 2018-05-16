@@ -14,8 +14,7 @@ def getPath(s):
 
 
 repoMap = {}
-repoMap[12499251L] = gitResolver.GitResolver('/home/fdse/data/prior_repository/checkstyle/checkstyle')
-repoMap[15155534L] = gitResolver.GitResolver('/home/fdse/data/prior_repository/gocd/gocd')
+repoMap[12983151L] = gitResolver.GitResolver('/home/fdse/data/prior_repository/openhab/openhab1-addons')
 
 # repos = mysqlOperator.selectAllHighRepository()
 # for repo in repos:
