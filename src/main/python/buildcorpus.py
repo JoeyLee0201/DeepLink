@@ -177,8 +177,8 @@ def buildModelFromFile(filename):
 def buildIssueAndCommit():
     repos = linkOperator.selectOneRepo(12983151)
     # repos = linkOperator.selectRepoOver(5000)
-    textCorpus = open('text.dat', "w")
-    codeCorpus = open('code.dat', "w")
+    textCorpus = open('text12983151.dat', "w")
+    codeCorpus = open('code12983151.dat', "w")
     try:
         print 'start'
         for highRepo in repos:

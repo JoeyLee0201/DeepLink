@@ -32,7 +32,8 @@ def isUnlabeled(issue, date):
     return False
 
 
-projects = linkOperator.selectRepoOver(5000)
+# projects = linkOperator.selectRepoOver(5000)
+projects = linkOperator.selectOneRepo(12983151)
 print 'start'
 for repo in projects:
     try:
@@ -48,15 +49,16 @@ for repo in projects:
             trueLinks = []
             for ci in commitIssues:
                 trueLinks.append(ci[2])
+                linkOperator.insertLink(('sql_true_link', repo[0], commitSha, ci[2]))
             for issue in issues:
                 if isUnlabeled(issue, gitRepo.getDateTime(commit)):
                     if len(commitIssues) > 0:
                         if issue[1] in trueLinks:
-                            linkOperator.insertLink(('true_link', repo[0], commitSha, issue[1]))
+                            pass
                         else:
-                            linkOperator.insertLink(('false_link', repo[0], commitSha, issue[1]))
+                            linkOperator.insertLink(('sql_false_link', repo[0], commitSha, issue[1]))
                     else:
-                        linkOperator.insertLink(('unknow_link', repo[0], commitSha, issue[1]))
+                        linkOperator.insertLink(('sql_unknow_link', repo[0], commitSha, issue[1]))
         print '==============', getPath(repo[1]), 'End'
     except Exception, e:
         print 'Error:', getPath(repo[1])

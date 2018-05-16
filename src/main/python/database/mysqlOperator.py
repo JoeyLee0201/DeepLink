@@ -46,7 +46,7 @@ def selectAllHighRepository():
 
 def selectAllIssueInOneRepo(repoId):
     SQL = """
-    select repository_id,issue_index,created_at,closed_at,title,body,labels,type from issue where repository_id = %d and type = 'issue'
+    select repository_id,issue_index,created_at,closed_at,title,body,labels,type from issue where repository_id = %d
     """
     try:
         cursor.execute(SQL % repoId)
@@ -57,7 +57,7 @@ def selectAllIssueInOneRepo(repoId):
 
 def selectOneIssue(issueIndex):
     SQL = """
-    select repository_id,issue_index,created_at,closed_at,title,body,labels,type from issue where issue_index = '%s' and type = 'issue'
+    select repository_id,issue_index,created_at,closed_at,title,body,labels,type from issue where issue_index = '%s'
     """
     try:
         cursor.execute(SQL % issueIndex)
@@ -128,7 +128,7 @@ def countTrueLinkInOneIssue(issueIndex):
 # id, date, date
 def selectAllIssueInOneRepoDate(cou):
     SQL = """
-    select repository_id,issue_index from issue where repository_id = %d and type = 'issue'
+    select repository_id,issue_index from issue where repository_id = %d
     and (('%s' between DATE_SUB(created_at, INTERVAL 7 DAY) and DATE_ADD(created_at, INTERVAL 7 DAY)) 
     or ('%s' between DATE_SUB(closed_at, INTERVAL 7 DAY) and DATE_ADD(closed_at, INTERVAL 7 DAY)))
     """
