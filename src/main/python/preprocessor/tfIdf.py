@@ -63,4 +63,4 @@ print(sorted(enumerate(sims), key=lambda item: -item[1]))
 #  0.          0.        ] 
 print new_vec_tfidf
 for t in corpus_tfidf:
-    print matutils.cossim(new_vec_tfidf,t)
+    print matutils.cossim(new_vec_tfidf, t)

@@ -61,7 +61,7 @@ def selectOneIssue(issueIndex):
     """
     try:
         cursor.execute(SQL % issueIndex)
-        results = cursor.fetchall()
+        results = cursor.fetchone()
         return results
     except Exception, e:
         print e
@@ -174,5 +174,8 @@ if __name__ == '__main__':
     # for link in links:
     #     trueLinks.append(link[0])
     # print selectAllIssueInOneRepoDate((1451060, '2011-03-18 11:45:51', '2011-03-18 11:45:51'))
-    print len(selectOneIssue('checkstyle/checkstyle/issues/270'))
+    # print len(selectOneIssue('checkstyle/checkstyle/issues/270'))
+    issue = selectOneIssue('JakeWharton/ActionBarSherlock/issues/1')
+    print issue
+    print issue[5]
     close()
