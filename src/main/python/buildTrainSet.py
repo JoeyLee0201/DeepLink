@@ -207,6 +207,7 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
     trainSet = open('./train/traincase%d.dat' % index, "w")
     trainSet.write(res)
     trainSet.close()
+    print './train/traincase%d.dat' % index, 'Over'
 
     trueStart += TRUE_GAP
     falseStart += FALSE_GAP
