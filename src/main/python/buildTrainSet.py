@@ -48,25 +48,27 @@ repoMap[12983151L] = gitResolver.GitResolver('/home/fdse/data/prior_repository/o
 
 # TRUE_LINK_TOTAL = linkOperator.count('true_link')
 # FALSE_LINK_TOTAL = linkOperator.count('false_link')
-TRUE_GAP = 100
-FALSE_GAP = 10000
+TRUE_GAP = 559
+FALSE_GAP = 15000
+TRUE_COUNT = 559
+FALSE_COUNT = 600
 
 trueStart = 1
 falseStart = 1
-textModel = Doc2Vec.load("text12983151.model")
-codeModel = Doc2Vec.load("code12983151.model")
+textModel = Doc2Vec.load("./test/text12983151.model")
+codeModel = Doc2Vec.load("./test/code12983151.model")
 
-trueLinkList = linkOperator.selectInScope(('sql_true_link', trueStart, trueStart+TRUE_GAP))
-falseLinkList = linkOperator.selectInScope(('sql_false_link', falseStart, falseStart+FALSE_GAP))
+trueLinkList = linkOperator.selectInScope(('sql_true_link', trueStart, trueStart+TRUE_COUNT))
+falseLinkList = linkOperator.selectInScope(('sql_false_link', falseStart, falseStart+FALSE_COUNT))
 
 index = 0
 while len(trueLinkList) > 0 and len(falseLinkList) > 0:
-    print 'true: ', trueStart, ' to ', trueStart+TRUE_GAP
-    print 'false: ', falseStart, ' to ', falseStart+FALSE_GAP
+    print 'true: ', trueStart, ' to ', trueStart+TRUE_COUNT
+    print 'false: ', falseStart, ' to ', falseStart+FALSE_COUNT
     linkList = []
     for trueLink in trueLinkList:
         tempMap = {}
-        temp['type'] = 1
+        tempMap['type'] = 1
         repo = repoMap[trueLink[0]]
         commit = repo.getOneCommit(trueLink[1])
         issue = mysqlOperator.selectOneIssue(trueLink[2])
@@ -80,35 +82,35 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
 
         # code part init
         codeMax = -1
-        temp['commitCode'] = []
-        temp['issueCode'] = []
+        tempMap['commitCode'] = []
+        tempMap['issueCode'] = []
         # text part init
         commitText = preprocessor.preprocessToWord(commit.message.decode('utf-8'))
         commitTextVec = textModel.infer_vector(commitText)
-        temp['commitText'] = commitTextVec  # 确定不变
+        tempMap['commitText'] = commitTextVec  # 确定不变
         titleWords = preprocessor.preprocessToWord(issue[4].decode('utf-8'))
-        temp['issueText'] = textModel.infer_vector(titleWords)  # 可能改变
-        textMax = similarity(commitTextVec, temp['issueText'])
+        tempMap['issueText'] = textModel.infer_vector(titleWords)  # 可能改变
+        textMax = similarity(commitTextVec, tempMap['issueText'])
         # issue body
         if issue[5]:
             body = preprocessor.processHTML(issue[5].decode('utf-8'))
             bodyTextVec = textModel.infer_vector(body[1])
             sim = similarity(commitTextVec, bodyTextVec)
             if sim > textMax:
-                temp['issueText'] = bodyTextVec
+                tempMap['issueText'] = bodyTextVec
                 textMax = sim
             if len(body[0]) > 0:
                 codeVec = codeModel.infer_vector(body[0])
                 for diffCodeTemp in diffCodeList:
                     codeSim = similarity(codeVec, diffCodeTemp[0])
                     if codeSim > codeMax:
-                        temp['commitCode'] = diffCodeTemp[0]
-                        temp['issueCode'] = codeVec
+                        tempMap['commitCode'] = diffCodeTemp[0]
+                        tempMap['issueCode'] = codeVec
                         codeMax = codeSim
                     preCodeSim = similarity(codeVec, diffCodeTemp[1])
                     if preCodeSim > codeMax:
-                        temp['commitCode'] = diffCodeTemp[1]
-                        temp['issueCode'] = codeVec
+                        tempMap['commitCode'] = diffCodeTemp[1]
+                        tempMap['issueCode'] = codeVec
                         codeMax = preCodeSim
         # issue comments
         for comment in comments:
@@ -116,26 +118,26 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
             bodyTextVec = textModel.infer_vector(temp[1])
             sim = similarity(commitTextVec, bodyTextVec)
             if sim > textMax:
-                temp['issueText'] = bodyTextVec
+                tempMap['issueText'] = bodyTextVec
                 textMax = sim
             if len(temp[0]) > 0:
                 cCodeVec = codeModel.infer_vector(temp[0])
                 for diffCodeTemp in diffCodeList:
                     codeSim = similarity(cCodeVec, diffCodeTemp[0])
                     if codeSim > codeMax:
-                        temp['commitCode'] = diffCodeTemp[0]
-                        temp['issueCode'] = cCodeVec
+                        tempMap['commitCode'] = diffCodeTemp[0]
+                        tempMap['issueCode'] = cCodeVec
                         codeMax = codeSim
                     preCodeSim = similarity(cCodeVec, diffCodeTemp[1])
                     if preCodeSim > codeMax:
-                        temp['commitCode'] = diffCodeTemp[1]
-                        temp['issueCode'] = cCodeVec
+                        tempMap['commitCode'] = diffCodeTemp[1]
+                        tempMap['issueCode'] = cCodeVec
                         codeMax = preCodeSim
         linkList.append(tempMap)
 
     for falseLink in falseLinkList:
         tempMap = {}
-        temp['type'] = 0
+        tempMap['type'] = 0
         repo = repoMap[falseLink[0]]
         commit = repo.getOneCommit(falseLink[1])
         issue = mysqlOperator.selectOneIssue(falseLink[2])
@@ -149,35 +151,35 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
 
         # code part init
         codeMax = -1
-        temp['commitCode'] = []
-        temp['issueCode'] = []
+        tempMap['commitCode'] = []
+        tempMap['issueCode'] = []
         # text part init
         commitText = preprocessor.preprocessToWord(commit.message.decode('utf-8'))
         commitTextVec = textModel.infer_vector(commitText)
-        temp['commitText'] = commitTextVec  # 确定不变
+        tempMap['commitText'] = commitTextVec  # 确定不变
         titleWords = preprocessor.preprocessToWord(issue[4].decode('utf-8'))
-        temp['issueText'] = textModel.infer_vector(titleWords)  # 可能改变
-        textMax = similarity(commitTextVec, temp['issueText'])
+        tempMap['issueText'] = textModel.infer_vector(titleWords)  # 可能改变
+        textMax = similarity(commitTextVec, tempMap['issueText'])
         # issue body
         if issue[5]:
             body = preprocessor.processHTML(issue[5].decode('utf-8'))
             bodyTextVec = textModel.infer_vector(body[1])
             sim = similarity(commitTextVec, bodyTextVec)
             if sim > textMax:
-                temp['issueText'] = bodyTextVec
+                tempMap['issueText'] = bodyTextVec
                 textMax = sim
             if len(body[0]) > 0:
                 codeVec = codeModel.infer_vector(body[0])
                 for diffCodeTemp in diffCodeList:
                     codeSim = similarity(codeVec, diffCodeTemp[0])
                     if codeSim > codeMax:
-                        temp['commitCode'] = diffCodeTemp[0]
-                        temp['issueCode'] = codeVec
+                        tempMap['commitCode'] = diffCodeTemp[0]
+                        tempMap['issueCode'] = codeVec
                         codeMax = codeSim
                     preCodeSim = similarity(codeVec, diffCodeTemp[1])
                     if preCodeSim > codeMax:
-                        temp['commitCode'] = diffCodeTemp[1]
-                        temp['issueCode'] = codeVec
+                        tempMap['commitCode'] = diffCodeTemp[1]
+                        tempMap['issueCode'] = codeVec
                         codeMax = preCodeSim
         # issue comments
         for comment in comments:
@@ -185,20 +187,20 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
             bodyTextVec = textModel.infer_vector(temp[1])
             sim = similarity(commitTextVec, bodyTextVec)
             if sim > textMax:
-                temp['issueText'] = bodyTextVec
+                tempMap['issueText'] = bodyTextVec
                 textMax = sim
             if len(temp[0]) > 0:
                 cCodeVec = codeModel.infer_vector(temp[0])
                 for diffCodeTemp in diffCodeList:
                     codeSim = similarity(cCodeVec, diffCodeTemp[0])
                     if codeSim > codeMax:
-                        temp['commitCode'] = diffCodeTemp[0]
-                        temp['issueCode'] = cCodeVec
+                        tempMap['commitCode'] = diffCodeTemp[0]
+                        tempMap['issueCode'] = cCodeVec
                         codeMax = codeSim
                     preCodeSim = similarity(cCodeVec, diffCodeTemp[1])
                     if preCodeSim > codeMax:
-                        temp['commitCode'] = diffCodeTemp[1]
-                        temp['issueCode'] = cCodeVec
+                        tempMap['commitCode'] = diffCodeTemp[1]
+                        tempMap['issueCode'] = cCodeVec
                         codeMax = preCodeSim
         linkList.append(tempMap)
 
@@ -211,7 +213,7 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
 
     trueStart += TRUE_GAP
     falseStart += FALSE_GAP
-    trueLinkList = linkOperator.selectInScope(('sql_true_link', trueStart, trueStart + TRUE_GAP))
-    falseLinkList = linkOperator.selectInScope(('sql_false_link', falseStart, falseStart + FALSE_GAP))
+    trueLinkList = linkOperator.selectInScope(('sql_true_link', trueStart, trueStart + TRUE_COUNT))
+    falseLinkList = linkOperator.selectInScope(('sql_false_link', falseStart, falseStart + FALSE_COUNT))
 mysqlOperator.close()
 linkOperator.close()
