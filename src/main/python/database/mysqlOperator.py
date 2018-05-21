@@ -103,7 +103,7 @@ def selectCommentInOneIssue(issueIndex):
 
 def selectExistIssueOnCommit(cou):
     SQL = """
-    select repository_id, commit_id, issue_index from issue_event where repository_id = %d and commit_id = '%s'
+    select issue_index, repository_id, commit_id from issue_event where repository_id = %d and commit_id = '%s'
     """ % cou
     try:
         cursor.execute(SQL)
@@ -175,7 +175,5 @@ if __name__ == '__main__':
     #     trueLinks.append(link[0])
     # print selectAllIssueInOneRepoDate((1451060, '2011-03-18 11:45:51', '2011-03-18 11:45:51'))
     # print len(selectOneIssue('checkstyle/checkstyle/issues/270'))
-    issue = selectOneIssue('JakeWharton/ActionBarSherlock/issues/1')
-    print issue
-    print issue[5]
+    print selectExistIssueOnCommit((50904245, 'd56db36408aa9b45ea6d685d035c983c76a14b06'))
     close()

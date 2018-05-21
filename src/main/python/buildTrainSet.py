@@ -7,6 +7,26 @@ from gitresolver import gitResolver
 import re
 import traceback
 import json
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+
+def vec2json(vec):
+    res = {}
+    res['type'] = vec['type']
+    res['commitText'] = vec['commitText'].tolist()
+    res['issueText'] = vec['issueText'].tolist()
+    if vec['commitCode']:
+        res['commitCode'] = vec['commitCode'].tolist()
+    else:
+        res['commitCode'] = []
+    if vec['issueCode']:
+        res['issueCode'] = vec['issueCode'].tolist()
+    else:
+        res['issueCode'] = []
+    return res
 
 
 def getPath(s):
@@ -82,8 +102,8 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
 
         # code part init
         codeMax = -1
-        tempMap['commitCode'] = []
-        tempMap['issueCode'] = []
+        tempMap['commitCode'] = None
+        tempMap['issueCode'] = None
         # text part init
         commitText = preprocessor.preprocessToWord(commit.message.decode('utf-8'))
         commitTextVec = textModel.infer_vector(commitText)
@@ -133,7 +153,7 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
                         tempMap['commitCode'] = diffCodeTemp[1]
                         tempMap['issueCode'] = cCodeVec
                         codeMax = preCodeSim
-        linkList.append(tempMap)
+        linkList.append(vec2json(tempMap))
 
     for falseLink in falseLinkList:
         tempMap = {}
@@ -151,8 +171,8 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
 
         # code part init
         codeMax = -1
-        tempMap['commitCode'] = []
-        tempMap['issueCode'] = []
+        tempMap['commitCode'] = None
+        tempMap['issueCode'] = None
         # text part init
         commitText = preprocessor.preprocessToWord(commit.message.decode('utf-8'))
         commitTextVec = textModel.infer_vector(commitText)
@@ -202,7 +222,7 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
                         tempMap['commitCode'] = diffCodeTemp[1]
                         tempMap['issueCode'] = cCodeVec
                         codeMax = preCodeSim
-        linkList.append(tempMap)
+        linkList.append(vec2json(tempMap))
 
     index += 1
     res = json.dumps(linkList, encoding="utf-8", indent=4)
