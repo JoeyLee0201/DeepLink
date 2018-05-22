@@ -39,7 +39,7 @@ for repo in projects:
             commitIssues = mysqlOperatorCopy.selectExistIssueOnCommit((repo[0], commitSha))
             trueLinks = []
             for ci in commitIssues:
-                trueLinks.append(ci[2])
+                trueLinks.append(ci[0])
             issueByDate = getIssueInDate((repo[0], str(gitRepo.getDateTime(commit)), str(gitRepo.getDateTime(commit))))
             for i in issueByDate:
                 if len(commitIssues) > 0:
