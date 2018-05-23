@@ -19,14 +19,14 @@ def vec2json(vec):
     res['type'] = vec['type']
     res['commitText'] = vec['commitText'].tolist()
     res['issueText'] = vec['issueText'].tolist()
-    if vec['commitCode']:
-        res['commitCode'] = vec['commitCode'].tolist()
-    else:
+    if vec['commitCode'] is None:
         res['commitCode'] = []
-    if vec['issueCode']:
-        res['issueCode'] = vec['issueCode'].tolist()
     else:
+        res['commitCode'] = vec['commitCode'].tolist()
+    if vec['issueCode'] is None:
         res['issueCode'] = []
+    else:
+        res['issueCode'] = vec['issueCode'].tolist()
     return res
 
 
@@ -108,8 +108,8 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
 
         # code part init
         codeMax = -1
-        tempMap['commitCode'] = []
-        tempMap['issueCode'] = []
+        tempMap['commitCode'] = None
+        tempMap['issueCode'] = None
         # text part init
         commitText = preprocessor.preprocessToWord(commit.message.decode('utf-8'))
         commitTextVec = textModel.infer_vector(commitText)
@@ -182,8 +182,8 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
 
         # code part init
         codeMax = -1
-        tempMap['commitCode'] = []
-        tempMap['issueCode'] = []
+        tempMap['commitCode'] = None
+        tempMap['issueCode'] = None
         # text part init
         commitText = preprocessor.preprocessToWord(commit.message.decode('utf-8'))
         commitTextVec = textModel.infer_vector(commitText)
