@@ -44,7 +44,7 @@ while index < 3:
     index += 1
 
     # res = json.dumps(linkList, encoding="utf-8", indent=4)
-    # trainSet = open('./train/traincase%d.dat' % index, "w")
+    # trainSet = open('./train/traruanhincase%d.dat' % index, "w")
     # trainSet.write(res)
     # trainSet.close()
 
