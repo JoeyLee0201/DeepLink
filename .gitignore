@@ -6,3 +6,4 @@
 *.model
 *.npy
 /.idea/
+/src/main/python/.idea
