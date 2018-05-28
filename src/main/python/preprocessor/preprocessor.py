@@ -219,6 +219,8 @@ tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 stemmer = nltk.stem.SnowballStemmer('english')
 
 codePattern = re.compile(r'<code>([\s\S]*?)</code>', re.I)
+singleCodePattern = re.compile(r'`([\s\S]*?)`', re.I)
+multiCodePattern = re.compile(r'```([\s\S]*?)```', re.I)
 termPattern = re.compile(r'[A-Za-z]+.*[A-Z]+.*')
 camelCase1 = re.compile(r'^[A-Z]+[a-z]+.*[A-Z]+.*$')
 camelCase2 = re.compile(r'^[a-z]+.*[A-Z]+.*$')
@@ -352,6 +354,52 @@ def processPreDiffCode(code):
 
 
 def processHTML(html):
+      multiCodes = multiCodePattern.findall(html)
+      texts = re.sub(r'(```[\s\S]*?```)', '', html, 0, re.I)
+      singleCodes = singleCodePattern.findall(html)
+      texts = re.sub(r'(<.*?>)', '', texts, 0, re.I)
+      texts = re.sub(r'(</.*?>)', '', texts, 0, re.I)
+      texts = re.sub(r'(`)', '', texts, 0, re.I)
+      preText = preprocessToWord(texts)
+      result = []
+      codes = multiCodes + singleCodes
+      for code in codes:
+          code = re.sub(r'(\"[\s\S]*?\")', '', code, 0, re.I)
+          mis = methodInvocationCase.findall(code)
+          for mi in mis:
+              miWords = mi.split('.')
+              for miWord in miWords:
+                  toDeal = []
+                  if camelCase1.match(miWord) or camelCase2.match(miWord):
+                      toDeal = splitCode(miWord)
+                  elif upperExtCase.match(miWord):
+                      toDeal = splitFinalExt(miWord)
+                  elif upperCase.match(miWord):
+                      toDeal.append(miWord)
+                  else:
+                      toDeal.append(miWord)
+                  for deal in toDeal:
+                      if not isDelete(deal.lower()):
+                          result.append(stemmer.stem(deal))
+          code = re.sub(r'([A-Za-z0-9_]+\.[A-Za-z0-9_]+)', '', code, 0, re.I)
+          sentences = tokenizer.tokenize(code)
+          for sentence in sentences:
+              words = nltk.regexp_tokenize(sentence, pattern)
+              for word in words:
+                  toDeal = []
+                  if camelCase1.match(word) or camelCase2.match(word):
+                      toDeal = splitCode(word)
+                  elif upperExtCase.match(word):
+                      toDeal = splitFinalExt(word)
+                  elif upperCase.match(word):
+                      toDeal.append(word)
+                  for deal in toDeal:
+                      if not isDelete(deal.lower()):
+                          result.append(stemmer.stem(deal))
+      return result, preText
+
+
+def processHTMLByTag(html):
       codes = codePattern.findall(html)
       texts = re.sub(r'(<pre>\s*?<code>[\s\S]*?</code>\s*?</pre>)', '', html, 0, re.I)
       texts = re.sub(r'(<.*?>)', '', texts, 0, re.I)
@@ -362,7 +410,7 @@ def processHTML(html):
           code = re.sub(r'(\"[\s\S]*?\")', '', code, 0, re.I)
           mis = methodInvocationCase.findall(code)
           for mi in mis:
-              miWords = mi.split('\.')
+              miWords = mi.split('.')
               for miWord in miWords:
                   toDeal = []
                   if camelCase1.match(miWord) or camelCase2.match(miWord):
@@ -411,10 +459,22 @@ def splitFinalExt(ext):
 
 
 if __name__ == '__main__':
-    print processPreDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {
-    -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
-    -            "HTML_COMMENT", addToMyList.getHisName(20077));
-    +            "HTML_COMMENT", JavadocUtils.getTokenName(20078));
+    print splitCode("CodeIndex")
+    print splitCode("codeIndex")
+    print processHTML('''
+    Hello.
+ 
+ This is my `test.test()` custom Theme:
+ 
+ ```
+     <style name="CustomTheme" parent="Theme.Sherlock.Light"> 
+             <item name="android:textColor">@color/darkblue</item> 
+     </style> 
+ ```
+ 
+ If I use in my project: android:theme="@style/Theme.Sherlock.Light", everything works fine.
+ If I use:  android:theme="@style/CustomTheme", getSupportActionBar() return null with Honeycomb devices. 
+ 
      ''')
     print processDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {
     -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
