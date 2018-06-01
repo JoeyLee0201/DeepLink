@@ -76,6 +76,17 @@ def selectInScope(cou):
         print e
 
 
+def insertCossim(cou):
+    SQL = """
+    INSERT INTO `cossim` (`type`, `cossim`) VALUES ('%d', '%f');
+    """ % cou
+    try:
+        cursor.execute(SQL)
+        con.commit()
+    except Exception, e:
+        print e
+        con.rollback()
+
 
 def close():
     cursor.close()

@@ -3,6 +3,7 @@
 import numpy as np
 
 from gensim.models.doc2vec import Doc2Vec
+from gensim.models import word2vec
 
 import logging
 
@@ -24,9 +25,18 @@ def testD():
 
 
 if __name__ == '__main__':
-    model_dm = Doc2Vec.load("text.model")
-    test_text = []
-    inferred_vector_dm = model_dm.infer_vector(test_text)
-    print inferred_vector_dm
-    sims = model_dm.docvecs.most_similar([inferred_vector_dm], topn=10)
-    print sims
+    # model_dm = Doc2Vec.load("nocodedoc50904245.model")
+    # test_text = []
+    # inferred_vector_dm = model_dm.infer_vector(test_text)
+    # print inferred_vector_dm
+    # sims = model_dm.docvecs.most_similar([inferred_vector_dm], topn=10)
+    # print sims
+    wordModel = word2vec.Word2Vec.load('nocode50904245.model')
+    print wordModel.wv.index2word.index('fix')
+    print wordModel.wv.index2word[19]
+
+    print wordModel.wv.index2word.index('bug')
+    print wordModel[wordModel.wv.index2word[79]]
+    print wordModel['bug']
+
+    print wordModel.wv.index2word.index('---')

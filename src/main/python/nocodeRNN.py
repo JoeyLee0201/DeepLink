@@ -3,6 +3,7 @@
 
 from gensim.models import word2vec
 from preprocessor import preprocessor
+from gensim.models.doc2vec import Doc2Vec
 
 import tensorflow as tf
 import numpy as np
@@ -13,12 +14,15 @@ import json
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 VECTOR_SIZE = 100
-BATCH_SIZE = 2
+TRAIN_ITERS = 10000
+BATCH_SIZE = 5
 NUM_STEPS = 4
-STATE_SIZE = 10
-LEARNING_RATE = 0.1
+HIDDEN_SIZE = 100
+N_CLASSES = 2
+N_INPUTS = 100
+LEARNING_RATE = 0.01
 
-w2vModel = word2vec.Word2Vec.load('test/nocode50904245.model')
+wordModel = word2vec.Word2Vec.load('test/nocode50904245.model')
 
 
 # text data
@@ -30,18 +34,20 @@ def text2vec(text, isHtml):
     res = []
     for word in words:
         try:
-            res.append(w2vModel[word])
+            res.append(wordModel[word])
         except KeyError:
-            res.append(np.zeros(VECTOR_SIZE))
+            res.append(tf.zeros(VECTOR_SIZE))
     return res
 
-
+#  shape = [None, seq len, Vec size]
 def read_data(path='./train'):
     # commit_text = ''
     # issue_text = ''
     # commit_max = 0  # 667
     # issue_max = 0  # 413
-    all_data = []
+    X1 = []
+    X2 = []
+    Y = []
     filelist = os.listdir(path)
     for i in range(0, len(filelist)):
         filepath = os.path.join(path, filelist[i])
@@ -51,109 +57,143 @@ def read_data(path='./train'):
             for map in testlist:
                 commit = text2vec(map['commit'], False)
                 issue = text2vec(map['issue'], True)
-                all_data.append({'commit': commit,
-                                 'issue': issue,
-                                 'type': map['type']})
-                # if commit_max < len(commit):
-                #     commit_max = len(commit)
-                #     commit_text = map['commit']
-                # if issue_max < len(issue):
-                #     issue_max = len(issue)
-                #     issue_text = map['issue']
+                X1.append(commit)
+                X2.append(issue)
+                Y.append(map['type'])
             file.close()
-    return all_data  #, commit_max, issue_max, commit_text, issue_text
-# d = read_data()
-# print len(d[0])
-# print d[1], d[3]
-# print d[2], d[4]
+    return X1, X2, Y
 
 
-# shape=[batch_size, num-step]
-def make_batches(all_data, batch_size, num_step):
-    num_batches = (len(all_data)-1) // (batch_size*num_step)
-    data = np.array(all_data[: batch_size*num_batches*num_step])
-    data = np.reshape(data, [batch_size, num_batches*num_step])
-    data_batches = np.split(data, num_batches, axis=1)
-    return data_batches
+# shape=[batch_size, None]
+def make_batches(data, batch_size):
+    X1, X2, Y = data
+    num_batches = len(X1) // batch_size
+    data1 = np.array(X1[: batch_size*num_batches])
+    data1 = np.reshape(data1, [batch_size, num_batches])
+    data_batches1 = np.split(data1, num_batches, axis=1)
+
+    data2 = np.array(X2[: batch_size*num_batches])
+    data2 = np.reshape(data2, [batch_size, num_batches])
+    data_batches2 = np.split(data2, num_batches, axis=1)
+
+    label = np.array(Y[: batch_size*num_batches])
+    label = np.reshape(label, [batch_size, num_batches])
+    label_batches = np.split(label, num_batches, axis=1)
+    return list(zip(data_batches1, data_batches2, label_batches))
 
 
-class Model(object):
-    def __init__(self, is_training, batch_size, num_steps):
-        self.batch_size = batch_size
-        self. num_steps = num_steps
+input1 = tf.placeholder(tf.int32, [BATCH_SIZE, None, VECTOR_SIZE])
+input2 = tf.placeholder(tf.int32, [BATCH_SIZE, None, VECTOR_SIZE])
+target = tf.placeholder(tf.int32, [BATCH_SIZE, N_CLASSES])
 
 
+def word2Vector(index):
+    return wordModel[wordModel.wv.index2word[index]]
 
-# def gen_batch(data, batch_size, num_steps):
-#     data_length = len(data)
-#
-#     batch_partition_length = data_length // batch_size
-#     data_x = np.zeros([batch_size, batch_partition_length, VECTOR_SIZE], dtype=np.float32)
-#
-#     for i in range(batch_size):
-#         for j in range(batch_partition_length):
-#             data_x[i][j] = data[i * batch_partition_length+j]
-#     epoch_size = batch_partition_length // num_steps
-#     for i in range(epoch_size):
-#         x = data_x[:, i*num_steps:(i+1)*num_steps, :]
-#         yield x
-#
-#
-# def gen_epochs(n, data, batch_size, num_steps):
-#     for i in range(n):
-#         yield gen_batch(data, batch_size, num_steps)
 
+def RNN(input_data):
+    rnn_cell = tf.nn.rnn_cell.BasicRNNCell(HIDDEN_SIZE)
+    initial_state = rnn_cell.zero_state(BATCH_SIZE, dtype=tf.float32)
+    outputs, state = tf.nn.dynamic_rnn(rnn_cell, input_data,
+                                               initial_state=initial_state,
+                                               dtype=tf.float32)
+    return outputs, state
+
+
+outputs1, state1 = RNN(input1)
+outputs2, state2 = RNN(input2)
+
+logits = tf.tanh( tf.matmul ( x, w ) + b)
+prediction = tf.nn.softmax(logits)
+
+# Define loss and optimizer
+loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+        logits=logits, labels=target))
+
+
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
+train_op = optimizer.minimize(loss_op)
+correct_pred = tf.equal(tf.argmax(prediction, 1), tf.argmax(target, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+
+# Initialize the variables (i.e. assign their default value)
+init = tf.global_variables_initializer()
+train_batches = make_batches(read_data(), BATCH_SIZE)
+# Start training
+with tf.Session() as sess:
+    sess.run(init)
+
+    for step in range(TRAIN_ITERS):
+        for x1, x2, y in train_batches:
+            sess.run(train_op, feed_dict={input1: x1, input2: x2, target: y})
+            if step % 100 == 0 or step == 1:
+                loss, acc = sess.run([loss_op, accuracy], feed_dict={input1: x1, input2: x2, target: y})
+                print("Step " + str(step) + ", Minibatch Loss= " + \
+                      "{:.4f}".format(loss) + ", Training Accuracy= " + \
+                      "{:.3f}".format(acc))
+
+    print("Optimization Finished!")
+
+
+# x = tf.placeholder(tf.float32, [None, NUM_STEPS, N_INPUTS])
+# y = tf.placeholder(tf.float32, [None, N_CLASSES])
 #
-# x = tf.placeholder(tf.float32, [BATCH_SIZE, NUM_STEPS, VECTOR_SIZE])
-#
-# init_state = tf.zeros([BATCH_SIZE, STATE_SIZE, VECTOR_SIZE])
-#
-# rnn_inputs = tf.unstack(x, axis=1)
-# with tf.variable_scope('rnn_cell'):
-#     W = tf.get_variable('W', [STATE_SIZE + VECTOR_SIZE, STATE_SIZE])
-#     b = tf.get_variable('b', [STATE_SIZE], initializer=tf.constant_initializer(0.0))
+# weights = {
+#     'out': tf.Variable(tf.random_normal([num_hidden, num_classes]))
+# }
+# biases = {
+#     'out': tf.Variable(tf.random_normal([num_classes]))
+# }
 #
 #
-# def rnn_cell(rnn_input, state):
-#     with tf.variable_scope('rnn_cell', reuse=True):
-#         W = tf.get_variable('W', [STATE_SIZE + VECTOR_SIZE, STATE_SIZE])
-#         b = tf.get_variable('b', [STATE_SIZE], initializer=tf.constant_initializer(0.0))
-#     return tf.tanh(tf.matmul(tf.concat((rnn_input, state), 1), W)+b)
+# def RNN(x, weights, biases):
+#     x = tf.unstack(x, timesteps, 1)
+#     lstm_cell = rnn.BasicLSTMCell(num_hidden, forget_bias=1.0)
+#     outputs, states = rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
+#     return tf.matmul(outputs[-1], weights['out']) + biases['out']
 #
 #
-# state = init_state
-# rnn_outputs = []
-# for rnn_input in rnn_inputs:
-#     state = rnn_cell(rnn_input, state)
-#     rnn_outputs.append(state)
-# final_state = rnn_outputs[-1]
+# logits = RNN(x, weights, biases)
+# prediction = tf.nn.softmax(logits)
 #
-# with tf.variable_scope('softmax'):
-#     W = tf.get_variable('W', [STATE_SIZE, n_classes])
-#     b = tf.get_variable('b', [n_classes])
-# logits = [tf.matmul(rnn_output, W)+b for rnn_output in rnn_outputs]
-# predictions = [tf.nn.softmax(logit) for logit in logits]
-# # Turn our y placeholder into a list of labels
-# y_as_lists = tf.unstack(y, num=NUM_STEPS, axis=1)
+# # Define loss and optimizer
+# loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+#     logits=logits, labels=Y))
+# optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate)
+# train_op = optimizer.minimize(loss_op)
 #
-# #losses and train_step
-# losses = [tf.nn.sparse_softmax_cross_entropy_with_logits(labels=label, logits=logit) for label, logit in zip(y_as_lists, predictions)]
-# total_loss = tf.reduce_mean(losses)
-# train_step = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(total_loss)
+# # Evaluate model (with test logits, for dropout to be disabled)
+# correct_pred = tf.equal(tf.argmax(prediction, 1), tf.argmax(Y, 1))
+# accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 #
+# # Initialize the variables (i.e. assign their default value)
+# init = tf.global_variables_initializer()
 #
-# def train_network(num_epochs, num_steps, state_size):
-#     with tf.Session() as sess:
-#         sess.run(tf.global_variables_initializer())
-#         for idx, epoch in enumerate(gen_epochs(num_epochs, num_steps)):
-#             training_state = np.zeros((BATCH_SIZE, state_size))
-#             for step, (X, Y) in enumerate(epoch):
-#                 tr_losses, training_loss_, training_state, _ = \
-#                     sess.run([losses,
-#                               total_loss,
-#                               final_state,
-#                               train_step],
-#                              feed_dict={x: X, init_state: training_state})
+# # Start training
+# with tf.Session() as sess:
 #
+#     # Run the initializer
+#     sess.run(init)
 #
-# training_losses = train_network(1, NUM_STEPS, STATE_SIZE)
+#     for step in range(1, training_steps+1):
+#         batch_x, batch_y = mnist.train.next_batch(batch_size)
+#         # Reshape data to get 28 seq of 28 elements
+#         batch_x = batch_x.reshape((batch_size, timesteps, num_input))
+#         # Run optimization op (backprop)
+#         sess.run(train_op, feed_dict={X: batch_x, Y: batch_y})
+#         if step % display_step == 0 or step == 1:
+#             # Calculate batch loss and accuracy
+#             loss, acc = sess.run([loss_op, accuracy], feed_dict={X: batch_x,
+#                                                                  Y: batch_y})
+#             print("Step " + str(step) + ", Minibatch Loss= " + \
+#                   "{:.4f}".format(loss) + ", Training Accuracy= " + \
+#                   "{:.3f}".format(acc))
+#
+#     print("Optimization Finished!")
+#
+#     # Calculate accuracy for 128 mnist test images
+#     test_len = 128
+#     test_data = mnist.test.images[:test_len].reshape((-1, timesteps, num_input))
+#     test_label = mnist.test.labels[:test_len]
+#     print("Testing Accuracy:", \
+#         sess.run(accuracy, feed_dict={X: test_data, Y: test_label}))
