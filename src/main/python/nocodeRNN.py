@@ -115,7 +115,6 @@ def make_batches(data, batch_size):
     label = np.array(Y[: batch_size*num_batches])
     label = np.reshape(label, [batch_size, num_batches])
     label_batches = np.split(label, num_batches, axis=1)
-    label_batches = np.reshape(np.array(label_batches), [num_batches, BATCH_SIZE])
     return list(zip(data_batches1, data_batches2, len_batches1, len_batches2, label_batches))
 
 
@@ -123,7 +122,7 @@ input1 = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
 input2 = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
 len1 = tf.placeholder(tf.int32, [BATCH_SIZE, ])
 len2 = tf.placeholder(tf.int32, [BATCH_SIZE, ])
-target = tf.placeholder(tf.float32, [BATCH_SIZE, ])
+target = tf.placeholder(tf.float32, [BATCH_SIZE, 1])
 
 
 def RNN(input_data, seq_len):
@@ -149,7 +148,7 @@ def getLoss(state1, state2, t):
     pooled_len_2 = tf.sqrt(tf.reduce_sum(state2 * state2, 1))
     pooled_mul_12 = tf.reduce_sum(state1 * state2, 1)
     score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2, name="scores")
-    # score = tf.reshape(score, [BATCH_SIZE, 1])
+    score = tf.reshape(score, [BATCH_SIZE, 1])
     rs = t - score
     return tf.abs(rs)
 
