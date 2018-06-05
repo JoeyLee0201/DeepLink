@@ -1,0 +1,5 @@
+CREATE TABLE `rhlink`.`cossim` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT '',
+  `type` INT NOT NULL COMMENT '',
+  `cossim` DOUBLE NOT NULL COMMENT '',
+  PRIMARY KEY (`id`)  COMMENT '');
