@@ -14,7 +14,7 @@ import json
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 VECTOR_SIZE = 100
-TRAIN_ITERS = 10000
+TRAIN_ITERS = 1000
 BATCH_SIZE = 20
 # NUM_STEPS = 4
 HIDDEN_SIZE = 100
@@ -55,6 +55,7 @@ def read_data(path='./train'):
     filelist = os.listdir(path)
     for i in range(0, 1):
         filepath = os.path.join(path, filelist[i])
+        print "Loaded the file:", filepath
         if os.path.isfile(filepath):
             file = open(filepath, 'rb')
             testlist = json.loads(file.read())
@@ -155,7 +156,7 @@ def getLoss(state1, state2, t):
     pooled_len_1 = tf.sqrt(tf.reduce_sum(state1 * state1, 1))
     pooled_len_2 = tf.sqrt(tf.reduce_sum(state2 * state2, 1))
     pooled_mul_12 = tf.reduce_sum(state1 * state2, 1)
-    score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2, name="scores")
+    score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2+1e-8, name="scores")  #  +1e-8 avoid 'len_1/len_2 == 0'
     score = tf.reshape(score, [BATCH_SIZE, 1])
     rs = t - score
     return tf.abs(rs)
@@ -170,6 +171,7 @@ train_op = optimizer.minimize(loss_op)
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
 train_batches = make_batches(read_data(), BATCH_SIZE)
+test_batches = make_batches(read_data(path="./testset"), BATCH_SIZE)
 # Start training
 with tf.Session() as sess:
     sess.run(init)
@@ -177,36 +179,9 @@ with tf.Session() as sess:
     for step in range(TRAIN_ITERS):
         print step, '>>>>>>>>>>>>>>>>'
         for x1, x2, l1, l2, y in train_batches:
-            # print len(x1), '-------'
-            # print x1.shape
-            # for t1 in x1:
-            #     print t1.shape
-            #     break
-            #     for d in t1:
-            #         print len(d)
-            #         for w in d:
-            #             if len(w)==VECTOR_SIZE:
-            #                 pass
-            #             else:
-            #                 print '=', len(w)
-            # print len(x2), '-------'
-            # print x2.shape
-            # for t2 in x2:
-            #     print t2.shape
-            #     break
-            #     for d in t2:
-            #         print len(d)
-            #         for w in d:
-            #             if len(w)==VECTOR_SIZE:
-            #                 pass
-            #             else:
-            #                 print '=', len(w)
-            # print l1.shape
-            # print l2.shape
-            # print y.shape
-            sess.run(train_op, feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
-            if step % 100 == 0 or step == 1:
+            loss, _ = sess.run([loss_op, train_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
+        if step % 100 == 0:
+            for x1, x2, l1, l2, y in test_batches:
                 loss = sess.run([loss_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
-                print("Step " + str(step) + ", Minibatch Loss= " + "{:.4f}".format(loss))
-
+                print np.reshape(loss, [BATCH_SIZE, ])
     print("Optimization Finished!")
