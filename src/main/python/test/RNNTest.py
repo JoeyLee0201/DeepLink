@@ -66,7 +66,7 @@ for d1 in data_batches1:
         for dt in d:
             todo = maxD - len(dt)
             for index in range(todo):
-                dt.append(np.zeros(2).tolist())
+                dt.append(np.zeros(2))
 print data_batches1
 
 Y= [2, 3, 1, 2, 2, 2, 2]

@@ -16,9 +16,9 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 VECTOR_SIZE = 100
 TRAIN_ITERS = 10000
 BATCH_SIZE = 20
-NUM_STEPS = 4
+# NUM_STEPS = 4
 HIDDEN_SIZE = 100
-N_CLASSES = 2
+# N_CLASSES = 2
 N_INPUTS = 100
 LEARNING_RATE = 0.01
 
@@ -37,7 +37,7 @@ def text2vec(text, isHtml):
         try:
             res.append(wordModel[word])
         except KeyError:
-            res.append(tf.zeros(VECTOR_SIZE))
+            res.append(np.zeros(VECTOR_SIZE))
     return res
 
 
@@ -53,7 +53,7 @@ def read_data(path='./train'):
     L2 = []
     Y = []
     filelist = os.listdir(path)
-    for i in range(0, 2):
+    for i in range(0, 1):
         filepath = os.path.join(path, filelist[i])
         if os.path.isfile(filepath):
             file = open(filepath, 'rb')
@@ -76,8 +76,10 @@ def make_batches(data, batch_size):
     num_batches = len(Y) // batch_size
     data1 = np.array(X1[: batch_size*num_batches])
     data1 = np.reshape(data1, [batch_size, num_batches])
-    data_batches1 = np.split(data1, num_batches, axis=1)
+    data_batches1 = np.split(data1, num_batches, axis=1)  #  list
+    data_batches1_rs = []
     for d1 in data_batches1:
+        sub_batch = []
         maxD = 0
         for d in d1:
             for dt in d:
@@ -86,12 +88,16 @@ def make_batches(data, batch_size):
             for dt in d:
                 todo = maxD - len(dt)
                 for index in range(todo):
-                    dt.append(np.zeros(VECTOR_SIZE).tolist())
+                    dt.append(np.zeros(VECTOR_SIZE))
+                sub_batch.append(np.array(dt))
+        data_batches1_rs.append(np.array(sub_batch))
 
     data2 = np.array(X2[: batch_size*num_batches])
     data2 = np.reshape(data2, [batch_size, num_batches])
     data_batches2 = np.split(data2, num_batches, axis=1)
+    data_batches2_rs = []
     for d2 in data_batches2:
+        sub_batch = []
         maxD = 0
         for d in d2:
             for dt in d:
@@ -100,7 +106,9 @@ def make_batches(data, batch_size):
             for dt in d:
                 todo = maxD - len(dt)
                 for index in range(todo):
-                    dt.append(np.zeros(VECTOR_SIZE).tolist())
+                    dt.append(np.zeros(VECTOR_SIZE))
+                sub_batch.append(np.array(dt))
+        data_batches2_rs.append(np.array(sub_batch))
 
     len1 = np.array(L1[: batch_size*num_batches])
     len1 = np.reshape(len1, [batch_size, num_batches])
@@ -115,7 +123,7 @@ def make_batches(data, batch_size):
     label = np.array(Y[: batch_size*num_batches])
     label = np.reshape(label, [batch_size, num_batches])
     label_batches = np.split(label, num_batches, axis=1)
-    return list(zip(data_batches1, data_batches2, len_batches1, len_batches2, label_batches))
+    return list(zip(data_batches1_rs, data_batches2_rs, len_batches1, len_batches2, label_batches))
 
 
 input1 = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
@@ -167,13 +175,36 @@ with tf.Session() as sess:
     sess.run(init)
 
     for step in range(TRAIN_ITERS):
-        print step
+        print step, '>>>>>>>>>>>>>>>>'
         for x1, x2, l1, l2, y in train_batches:
-            sess.run(train_op, feed_dict={input1: x1,
-                                          input2: x2,
-                                          len1: l1,
-                                          len2: l2,
-                                          target: y})
+            # print len(x1), '-------'
+            # print x1.shape
+            # for t1 in x1:
+            #     print t1.shape
+            #     break
+            #     for d in t1:
+            #         print len(d)
+            #         for w in d:
+            #             if len(w)==VECTOR_SIZE:
+            #                 pass
+            #             else:
+            #                 print '=', len(w)
+            # print len(x2), '-------'
+            # print x2.shape
+            # for t2 in x2:
+            #     print t2.shape
+            #     break
+            #     for d in t2:
+            #         print len(d)
+            #         for w in d:
+            #             if len(w)==VECTOR_SIZE:
+            #                 pass
+            #             else:
+            #                 print '=', len(w)
+            # print l1.shape
+            # print l2.shape
+            # print y.shape
+            sess.run(train_op, feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
             if step % 100 == 0 or step == 1:
                 loss = sess.run([loss_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
                 print("Step " + str(step) + ", Minibatch Loss= " + "{:.4f}".format(loss))
