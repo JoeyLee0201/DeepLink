@@ -46,7 +46,6 @@ def read_data(path='./train'):
     for i in range(0, len(filelist)):
     # for i in range(0, 1):
         filepath = os.path.join(path, filelist[i])
-        print "Loaded the file:", filepath
         logging.info("Loaded the file:"+filepath)
         if os.path.isfile(filepath):
             file = open(filepath, 'rb')
@@ -142,20 +141,29 @@ newoutput1 = states1[-1].h
 newoutput2 = states2[-1].h
 
 
-#  |t - cossimilar(state1, state2)|
-def getLoss(state1, state2, t):
+def getScore(state1, state2):
     pooled_len_1 = tf.sqrt(tf.reduce_sum(state1 * state1, 1))
     pooled_len_2 = tf.sqrt(tf.reduce_sum(state2 * state2, 1))
     pooled_mul_12 = tf.reduce_sum(state1 * state2, 1)
-    score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2+1e-8, name="scores")  #  +1e-8 avoid 'len_1/len_2 == 0'
+    score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2 + 1e-8, name="scores")  # +1e-8 avoid 'len_1/len_2 == 0'
     score = tf.reshape(score, [BATCH_SIZE, 1])
+    return score
+
+#  |t - cossimilar(state1, state2)|
+def getLoss(score, t):
+    # pooled_len_1 = tf.sqrt(tf.reduce_sum(state1 * state1, 1))
+    # pooled_len_2 = tf.sqrt(tf.reduce_sum(state2 * state2, 1))
+    # pooled_mul_12 = tf.reduce_sum(state1 * state2, 1)
+    # score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2+1e-8, name="scores")  #  +1e-8 avoid 'len_1/len_2 == 0'
+    # score = tf.reshape(score, [BATCH_SIZE, 1])
     rs = t - score
     rs = tf.abs(rs)
     return tf.reduce_mean(rs)
 
 
 # Define loss and optimizer
-loss_op = getLoss(newoutput1, newoutput2, target)
+cos_score = getScore(newoutput1, newoutput2)
+loss_op = getLoss(cos_score, target)
 
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 train_op = optimizer.minimize(loss_op)
@@ -171,7 +179,6 @@ with tf.Session() as sess:
     sess.run(init)
 
     for step in range(TRAIN_ITERS):
-        print step, '>>>>>>>>>>>>>>>>'
         logging.info("Step: " + str(step))
         for x1, x2, l1, l2, y in train_batches:
             loss, _ = sess.run([loss_op, train_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
@@ -179,12 +186,9 @@ with tf.Session() as sess:
         if step % 100 == 0:
             temp = []
             for x1, x2, l1, l2, y in test_batches:
-                loss = sess.run([loss_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
+                score, loss = sess.run([cos_score, loss_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
                 temp.append(loss[0])
-            print temp
             logging.info(str(temp))
-            print "At the step %d, the avg loss is %f" % (step, np.mean(np.array(temp)))
             logging.info("At the step %d, the avg loss is %f" % (step, np.mean(np.array(temp))))
     saver.save(sess, 'rnnmodel/adam/rnn', global_step=TRAIN_ITERS)
-    print("Optimization Finished!")
     logging.info("Optimization Finished!")

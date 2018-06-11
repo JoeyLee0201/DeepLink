@@ -27,19 +27,41 @@ BATCH_SIZE = 3
 target = [[0], [0], [0]]
 
 
-#  |t - cossimilar(state1, state2)|
-def getLoss(state1, state2, t):
+def getScore(state1, state2):
     pooled_len_1 = tf.sqrt(tf.reduce_sum(state1 * state1, 1))
     pooled_len_2 = tf.sqrt(tf.reduce_sum(state2 * state2, 1))
     pooled_mul_12 = tf.reduce_sum(state1 * state2, 1)
-    score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2+1e-8, name="scores")
+    score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2 + 1e-8, name="scores")  # +1e-8 avoid 'len_1/len_2 == 0'
     score = tf.reshape(score, [BATCH_SIZE, 1])
+    return score
+
+#  |t - cossimilar(state1, state2)|
+def getLoss(score, t):
+    # pooled_len_1 = tf.sqrt(tf.reduce_sum(state1 * state1, 1))
+    # pooled_len_2 = tf.sqrt(tf.reduce_sum(state2 * state2, 1))
+    # pooled_mul_12 = tf.reduce_sum(state1 * state2, 1)
+    # score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2+1e-8, name="scores")  #  +1e-8 avoid 'len_1/len_2 == 0'
+    # score = tf.reshape(score, [BATCH_SIZE, 1])
     rs = t - score
-    return tf.abs(rs)
+    rs = tf.abs(rs)
+    return tf.reduce_mean(rs)
+
+
+# #  |t - cossimilar(state1, state2)|
+# def getLoss(state1, state2, t):
+#     pooled_len_1 = tf.sqrt(tf.reduce_sum(state1 * state1, 1))
+#     pooled_len_2 = tf.sqrt(tf.reduce_sum(state2 * state2, 1))
+#     pooled_mul_12 = tf.reduce_sum(state1 * state2, 1)
+#     score = tf.div(pooled_mul_12, pooled_len_1 * pooled_len_2+1e-8, name="scores")
+#     score = tf.reshape(score, [BATCH_SIZE, 1])
+#     rs = t - score
+#     return tf.abs(rs)
 
 
 sess = tf.Session()
-print sess.run(getLoss(newoutput1, newoutput2, target))
+score = sess.run(getScore(newoutput1, newoutput2))
+print score
+print sess.run(getLoss(score, target))
 #
 #
 # X1 = [[[1,1],[1,1]],
