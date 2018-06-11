@@ -47,6 +47,7 @@ def read_data(path='./train'):
     # for i in range(0, 1):
         filepath = os.path.join(path, filelist[i])
         print "Loaded the file:", filepath
+        logging.info("Loaded the file:"+filepath)
         if os.path.isfile(filepath):
             file = open(filepath, 'rb')
             testlist = json.loads(file.read())
@@ -163,17 +164,15 @@ train_op = optimizer.minimize(loss_op)
 # writer.close()
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
-print 'loading train set:'
 train_batches = make_batches(read_data(), BATCH_SIZE)
-print 'loading test set:'
 test_batches = make_batches(read_data(path="./testset"), BATCH_SIZE)
-print 'Start training...'
 with tf.Session() as sess:
     saver = tf.train.Saver()
     sess.run(init)
 
     for step in range(TRAIN_ITERS):
         print step, '>>>>>>>>>>>>>>>>'
+        logging.info("Step: " + str(step))
         for x1, x2, l1, l2, y in train_batches:
             loss, _ = sess.run([loss_op, train_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
 
@@ -183,6 +182,9 @@ with tf.Session() as sess:
                 loss = sess.run([loss_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
                 temp.append(loss[0])
             print temp
+            logging.info(str(temp))
             print "At the step %d, the avg loss is %f" % (step, np.mean(np.array(temp)))
+            logging.info("At the step %d, the avg loss is %f" % (step, np.mean(np.array(temp))))
     saver.save(sess, 'rnnmodel/adam/rnn', global_step=TRAIN_ITERS)
     print("Optimization Finished!")
+    logging.info("Optimization Finished!")
