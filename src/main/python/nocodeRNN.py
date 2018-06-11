@@ -156,7 +156,7 @@ def getLoss(state1, state2, t):
 # Define loss and optimizer
 loss_op = getLoss(newoutput1, newoutput2, target)
 
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE)
+optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 train_op = optimizer.minimize(loss_op)
 
 # writer = tf.summary.FileWriter('log/graphlog', tf.get_default_graph())
@@ -182,5 +182,5 @@ with tf.Session() as sess:
                 temp.append(loss[0])
             print temp
             print "At the step %d, the avg loss is %f" % (step, np.mean(np.array(temp)))
-    saver.save(sess, 'rnnmodel/sess.rnn', global_step=TRAIN_ITERS)
+    saver.save(sess, 'rnnmodel/adam/rnn', global_step=TRAIN_ITERS)
     print("Optimization Finished!")
