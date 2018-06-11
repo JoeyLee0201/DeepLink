@@ -163,9 +163,11 @@ train_op = optimizer.minimize(loss_op)
 # writer.close()
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
+print 'loading train set:'
 train_batches = make_batches(read_data(), BATCH_SIZE)
+print 'loading test set:'
 test_batches = make_batches(read_data(path="./testset"), BATCH_SIZE)
-# Start training
+print 'Start training...'
 with tf.Session() as sess:
     saver = tf.train.Saver()
     sess.run(init)
