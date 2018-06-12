@@ -5,7 +5,7 @@ import nltk
 import nltk.data
 import nltk.stem
 # from nltk.tokenize import RegexpTokenizer
-# from nltk.stem import WordNetLemmatizer
+from nltk.stem import WordNetLemmatizer
 
 stop_word = ["i",
             "me",
@@ -215,7 +215,7 @@ pattern = r"""(?x)                   # set flag to allow verbose regexps
 
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle') 
 # wordtokenizer = RegexpTokenizer(pattern)
-# lemmatizer = WordNetLemmatizer()
+lemmatizer = WordNetLemmatizer()
 stemmer = nltk.stem.SnowballStemmer('english')
 
 codePattern = re.compile(r'<code>([\s\S]*?)</code>', re.I)
@@ -256,6 +256,27 @@ def preprocess(paragraph):
                         temp.append(stemmer.stem(deal))
         result.append(temp)
     return result
+
+
+def preprocessNoCamel(paragraph):
+    result = []
+    sentences = tokenizer.tokenize(paragraph)
+    for sentence in sentences:
+        words = nltk.regexp_tokenize(sentence, pattern)
+        temp = []
+        for word in words:
+            if not isDelete(word.lower()):
+                temp.append(stemmer.stem(word.lower()))
+        result.append(temp)
+    return result
+
+
+def processHTMLNoCamel(html):
+    texts = re.sub(r'(```[\s\S]*?```)', '', html, 0, re.I)
+    texts = re.sub(r'(<.*?>)', '', texts, 0, re.I)
+    texts = re.sub(r'(</.*?>)', '', texts, 0, re.I)
+    texts = re.sub(r'(`)', '', texts, 0, re.I)
+    return preprocessNoCamel(texts)
 
 
 def preprocessToWord(paragraph):
@@ -459,25 +480,28 @@ def splitFinalExt(ext):
 
 
 if __name__ == '__main__':
-    print splitCode("CodeIndex")
-    print splitCode("codeIndex")
-    print processHTML('''
+    print preprocessNoCamel("I performed the tests, but he left me too bad.")
+    print stemmer.stem('has')
+    print stemmer.stem('have')
+    # print splitCode("CodeIndex")
+    # print splitCode("codeIndex")
+    print processHTMLNoCamel('''
     Hello.
- 
+
  This is my `test.test()` custom Theme:
- 
+
  ```
-     <style name="CustomTheme" parent="Theme.Sherlock.Light"> 
-             <item name="android:textColor">@color/darkblue</item> 
-     </style> 
+     <style name="CustomTheme" parent="Theme.Sherlock.Light">
+             <item name="android:textColor">@color/darkblue</item>
+     </style>
  ```
- 
+
  If I use in my project: android:theme="@style/Theme.Sherlock.Light", everything works fine.
- If I use:  android:theme="@style/CustomTheme", getSupportActionBar() return null with Honeycomb devices. 
- 
+ If I use:  android:theme="@style/CustomTheme", getSupportActionBar() return null with Honeycomb devices.
+
      ''')
-    print processDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {
-    -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
-    -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
-    +            "HTML_COMMENT", JavadocUtils.getTokenName(20078));
-     ''')
+    # print processDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {
+    # -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
+    # -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));
+    # +            "HTML_COMMENT", JavadocUtils.getTokenName(20078));
+    #  ''')

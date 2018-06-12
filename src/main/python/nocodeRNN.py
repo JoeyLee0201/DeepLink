@@ -168,12 +168,24 @@ loss_op = getLoss(cos_score, target)
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 train_op = optimizer.minimize(loss_op)
 
+
+def get_correct(score, target):
+    rs = target - score
+    rs = np.abs(rs)
+    result = 0
+    for onescore in rs:
+        if onescore[0] < 0.5:
+            result = result + 1
+    return result
+
+
 # writer = tf.summary.FileWriter('log/graphlog', tf.get_default_graph())
 # writer.close()
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
 train_batches = make_batches(read_data(), BATCH_SIZE)
 test_batches = make_batches(read_data(path="./testset"), BATCH_SIZE)
+total_tests = len(test_batches) * BATCH_SIZE
 with tf.Session() as sess:
     saver = tf.train.Saver()
     sess.run(init)
@@ -185,10 +197,12 @@ with tf.Session() as sess:
 
         if step % 100 == 0:
             temp = []
+            total_correct = 0
             for x1, x2, l1, l2, y in test_batches:
                 score, loss = sess.run([cos_score, loss_op], feed_dict={input1: x1, input2: x2, len1: l1, len2: l2, target: y})
-                temp.append(loss[0])
+                temp.append(loss)
+                total_correct = total_correct + get_correct(score, y)
             logging.info(str(temp))
-            logging.info("At the step %d, the avg loss is %f" % (step, np.mean(np.array(temp))))
+            logging.info("At the step %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct)/total_tests))
     saver.save(sess, 'rnnmodel/adam/rnn', global_step=TRAIN_ITERS)
     logging.info("Optimization Finished!")

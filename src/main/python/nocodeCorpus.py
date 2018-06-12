@@ -84,5 +84,68 @@ def buildIssueAndCommit():
         issueCorpus.close()
 
 
+def buildIssueAndCommitSeq():
+    corpus = open('corpus/nocode50904245.dat', "w")
+    commitCorpus = open('corpus/commit50904245.dat', "w")
+    issueCorpus = open('corpus/issue50904245.dat', "w")
+    try:
+        print 'start'
+        try:
+            # commit part
+            gitRe = gitResolver.GitResolver('/home/fdse/user/rh/gitrepo/apache/beam')
+            commits = gitRe.getCommits()
+            print '/home/fdse/user/rh/gitrepo/apache/beam', ":", len(commits)
+            for commit in commits:
+                seqs = preprocessor.preprocessNoCamel(commit.message.decode('utf-8'))
+                if len(seqs):
+                    # 不是空列表
+                    for seq in seqs:
+                        for word in seq:
+                            corpus.write(word.encode('utf-8'))
+                            corpus.write(" ")
+                            commitCorpus.write(word.encode('utf-8'))
+                            commitCorpus.write(" ")
+                        corpus.write("\n")
+                        commitCorpus.write("\n")
+            # issue part
+            issues = mysqlOperator.selectAllIssueInOneRepo(50904245)
+            print "50904245 :", len(issues)
+            for issue in issues:
+                titleSeqs = preprocessor.preprocessNoCamel(issue[4].decode('utf-8'))
+                if len(titleSeqs):
+                    # 不是空列表
+                    for titleSeq in titleSeqs:
+                        for word in titleSeq:
+                            corpus.write(word.encode('utf-8'))
+                            corpus.write(" ")
+                            issueCorpus.write(word.encode('utf-8'))
+                            issueCorpus.write(" ")
+                        corpus.write("\n")
+                        issueCorpus.write("\n")
+                if issue[5]:
+                    body = preprocessor.processHTMLNoCamel(issue[5].decode('utf-8'))
+                    if len(body):
+                        # 不是空列表
+                        for bodySeq in titleSeq:
+                            for word in bodySeq:
+                                corpus.write(word.encode('utf-8'))
+                                corpus.write(" ")
+                                issueCorpus.write(word.encode('utf-8'))
+                                issueCorpus.write(" ")
+                            corpus.write("\n")
+                            issueCorpus.write("\n")
+        except BaseException, e:
+            print "*** 50904245 :", e
+            print traceback.format_exc()
+        print 'end'
+    except IOError, e:
+        print "***", e
+        print traceback.format_exc()
+    finally:
+        corpus.close()
+        commitCorpus.close()
+        issueCorpus.close()
+
+
 if __name__ == '__main__':
-    buildIssueAndCommit()
+    buildIssueAndCommitSeq()
