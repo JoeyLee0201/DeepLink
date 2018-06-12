@@ -16,6 +16,6 @@ VECTOR_SIZE = 100
 # model2 = word2vec.Word2Vec(sentences2, size=VECTOR_SIZE)
 # model2.save("test/issue50904245.model")
 
-sentences3 = word2vec.Text8Corpus("test/nocode50904245.dat")
-model3 = word2vec.Word2Vec(sentences3, size=VECTOR_SIZE, sg=1, iter=100)
-model3.save("test/nocode50904245-1.model")
+sentences3 = word2vec.Text8Corpus("lema/nocode50904245.dat")
+model3 = word2vec.Word2Vec(sentences3, size=VECTOR_SIZE, sg=1, hs=1,  iter=100)
+model3.save("test/nocode50904245-3.model")

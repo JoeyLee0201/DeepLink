@@ -265,8 +265,12 @@ def preprocessNoCamel(paragraph):
         words = nltk.regexp_tokenize(sentence, pattern)
         temp = []
         for word in words:
-            if not isDelete(word.lower()):
-                temp.append(stemmer.stem(word.lower()))
+            if not isDelete(word.lower()) and len(word) > 1:
+                # temp.append(stemmer.stem(word.lower()))
+                if word.startwith('BEAM-'):
+                    temp.append('<IL>')
+                else:
+                    temp.append(lemmatizer.lemmatize(word.lower()))
         result.append(temp)
     return result
 
