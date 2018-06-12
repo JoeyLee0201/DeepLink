@@ -126,7 +126,7 @@ def buildIssueAndCommitSeq():
                     body = preprocessor.processHTMLNoCamel(issue[5].decode('utf-8'))
                     if len(body):
                         # 不是空列表
-                        for bodySeq in titleSeq:
+                        for bodySeq in body:
                             for word in bodySeq:
                                 corpus.write(word.encode('utf-8'))
                                 corpus.write(" ")
