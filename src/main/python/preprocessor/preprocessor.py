@@ -205,13 +205,13 @@ stop_word = ["i",
             "much",
             "many"]
 
-pattern = r"""(?x)                   # set flag to allow verbose regexps 
-              (?:[A-Z]\.)+           # abbreviations, e.g. U.S.A. 
-              |\d+(?:\.\d+)?%?       # numbers, incl. currency and percentages 
-              |\w+(?:[-']\w+)*       # words w/ optional internal hyphens/apostrophe 
-              |\.\.\.                # ellipsis 
-              |(?:[.,;"'?():-_`])    # special characters with meanings 
-            """  
+pattern = r"""(?x)                   
+              (?:[a-zA-Z]\.)+           
+              |\d+(?:\.\d+)?%?       
+              |\w+(?:[-']\w+)*       
+              |\.\.\.               
+              |(?:[.,;"'?():-_`])    
+            """
 
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle') 
 # wordtokenizer = RegexpTokenizer(pattern)
@@ -260,6 +260,7 @@ def preprocess(paragraph):
 
 def preprocessNoCamel(paragraph):
     result = []
+    paragraph = re.sub(r'(\[[\s\S]*?\])', '', paragraph, 0, re.I)
     sentences = tokenizer.tokenize(paragraph)
     for sentence in sentences:
         words = nltk.regexp_tokenize(sentence, pattern)
@@ -267,10 +268,7 @@ def preprocessNoCamel(paragraph):
         for word in words:
             if not isDelete(word.lower()) and len(word) > 1:
                 # temp.append(stemmer.stem(word.lower()))
-                if word.startwith('BEAM-'):
-                    temp.append('<IL>')
-                else:
-                    temp.append(lemmatizer.lemmatize(word.lower()))
+                temp.append(lemmatizer.lemmatize(word.lower()))
         result.append(temp)
     return result
 
@@ -279,7 +277,6 @@ def processHTMLNoCamel(html):
     texts = re.sub(r'(```[\s\S]*?```)', '', html, 0, re.I)
     texts = re.sub(r'(<.*?>)', '', texts, 0, re.I)
     texts = re.sub(r'(</.*?>)', '', texts, 0, re.I)
-    texts = re.sub(r'(`)', '', texts, 0, re.I)
     return preprocessNoCamel(texts)
 
 
@@ -484,7 +481,7 @@ def splitFinalExt(ext):
 
 
 if __name__ == '__main__':
-    print preprocessNoCamel("I performed the tests, but he left me too bad.")
+    print preprocessNoCamel("[beam-213] I performed the tests, but he left me too bad.")
     print stemmer.stem('has')
     print stemmer.stem('have')
     # print splitCode("CodeIndex")
