@@ -267,7 +267,7 @@ def preprocessNoCamel(paragraph):
         for word in words:
             if not isDelete(word.lower()) and len(word) > 1:
                 # temp.append(stemmer.stem(word.lower()))
-                if word.startwith('BEAM-'):
+                if word.startswith('BEAM-'):
                     temp.append('<IL>')
                 else:
                     temp.append(lemmatizer.lemmatize(word.lower()))
