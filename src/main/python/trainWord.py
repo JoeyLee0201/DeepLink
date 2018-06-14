@@ -18,4 +18,4 @@ VECTOR_SIZE = 100
 
 sentences3 = word2vec.Text8Corpus("corpus/nocode50904245-1.dat")
 model3 = word2vec.Word2Vec(sentences3, size=VECTOR_SIZE, sg=1, hs=1,  iter=100)
-model3.save("test/nocode50904245-1-1.model")
+model3.save("test/nocode50904245-1-2.model")
