@@ -205,13 +205,13 @@ stop_word = ["i",
             "much",
             "many"]
 
-pattern = r"""(?x)                   # set flag to allow verbose regexps 
-              (?:[A-Z]\.)+           # abbreviations, e.g. U.S.A. 
-              |\d+(?:\.\d+)?%?       # numbers, incl. currency and percentages 
-              |\w+(?:[-']\w+)*       # words w/ optional internal hyphens/apostrophe 
-              |\.\.\.                # ellipsis 
-              |(?:[.,;"'?():-_`])    # special characters with meanings 
-            """  
+pattern = r"""(?x)                   
+              (?:[a-zA-Z]\.)+           
+              |\d+(?:\.\d+)?%?       
+              |\w+(?:[-']\w+)*       
+              |\.\.\.               
+              |(?:[.,;"'?():-_`])    
+            """
 
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle') 
 # wordtokenizer = RegexpTokenizer(pattern)
@@ -260,6 +260,7 @@ def preprocess(paragraph):
 
 def preprocessNoCamel(paragraph):
     result = []
+    paragraph = re.sub(r'(\[[\s\S]*?\])', '', paragraph, 0, re.I)
     sentences = tokenizer.tokenize(paragraph)
     for sentence in sentences:
         words = nltk.regexp_tokenize(sentence, pattern)
@@ -267,10 +268,7 @@ def preprocessNoCamel(paragraph):
         for word in words:
             if not isDelete(word.lower()) and len(word) > 1:
                 # temp.append(stemmer.stem(word.lower()))
-                if word.startswith('BEAM-'):
-                    temp.append('<IL>')
-                else:
-                    temp.append(lemmatizer.lemmatize(word.lower()))
+                temp.append(lemmatizer.lemmatize(word.lower()))
         result.append(temp)
     return result
 
@@ -279,7 +277,6 @@ def processHTMLNoCamel(html):
     texts = re.sub(r'(```[\s\S]*?```)', '', html, 0, re.I)
     texts = re.sub(r'(<.*?>)', '', texts, 0, re.I)
     texts = re.sub(r'(</.*?>)', '', texts, 0, re.I)
-    texts = re.sub(r'(`)', '', texts, 0, re.I)
     return preprocessNoCamel(texts)
 
 
@@ -484,25 +481,14 @@ def splitFinalExt(ext):
 
 
 if __name__ == '__main__':
-    print preprocessNoCamel("I performed the tests, but he left me too bad.")
+    print preprocessNoCamel("[beam-213] I performed the tests, but he left me too bad.")
     print stemmer.stem('has')
     print stemmer.stem('have')
     # print splitCode("CodeIndex")
     # print splitCode("codeIndex")
     print processHTMLNoCamel('''
-    Hello.
-
- This is my `test.test()` custom Theme:
-
- ```
-     <style name="CustomTheme" parent="Theme.Sherlock.Light">
-             <item name="android:textColor">@color/darkblue</item>
-     </style>
- ```
-
- If I use in my project: android:theme="@style/Theme.Sherlock.Light", everything works fine.
- If I use:  android:theme="@style/CustomTheme", getSupportActionBar() return null with Honeycomb devices.
-
+   print() is a function in Python 3DESCRIPTION HERE\r\n\r\n------------------------\r\n\r\nFollow this checklist to help us incorporate your contribution quickly and easily:\r\n\r\n - [ ] Make sure there is a [JIRA issue](https://issues.apache.org/jira/projects/BEAM/issues/) filed for the change (usually before you start working on it).  Trivial changes like typos do not require a JIRA issue.  Your pull request should address just this issue, without pulling in other changes.\r\n - [ ] Format the pull request title like `[BEAM-XXX] Fixes bug in ApproximateQuantiles`, where you replace `BEAM-XXX` with the appropriate JIRA issue.\r\n - [ ] Write a pull request description that is detailed enough to understand:\r\n   - [ ] What the pull request does\r\n   - [ ] Why it does it\r\n   - [ ] How it does it\r\n   - [ ] Why this approach\r\n - [ ] Each commit in the pull request should have a meaningful subject line and body.\r\n - [ ] Run `mvn clean verify` to make sure basic checks pass. A more thorough check will be performed on your pull request automatically.\r\n - [ ] If this contribution is large, please file an Apache [Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf).\r\n\r\n 
+        
      ''')
     # print processDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {
     # -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));

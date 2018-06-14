@@ -1,2 +1,0 @@
-model_checkpoint_path: "sess.rnn-10"
-all_model_checkpoint_paths: "sess.rnn-10"

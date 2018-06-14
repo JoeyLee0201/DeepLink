@@ -85,9 +85,9 @@ def buildIssueAndCommit():
 
 
 def buildIssueAndCommitSeq():
-    corpus = open('corpus/nocode50904245.dat', "w")
-    commitCorpus = open('corpus/commit50904245.dat', "w")
-    issueCorpus = open('corpus/issue50904245.dat', "w")
+    corpus = open('corpus/nocode50904245-1.dat', "w")
+    commitCorpus = open('corpus/commit50904245-1.dat', "w")
+    issueCorpus = open('corpus/issue50904245-1.dat', "w")
     try:
         print 'start'
         try:
