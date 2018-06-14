@@ -46,6 +46,8 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
         repo = repoMap[trueLink[0]]
         commit = repo.getOneCommit(trueLink[1])
         issue = mysqlOperator.selectOneIssue(trueLink[2])
+        if issue is None:
+            continue
 
         res = {}
         res['type'] = 1
@@ -53,13 +55,15 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
         res['issue'] = issue[4].decode('utf-8')
         # issue body
         if issue[5]:
-            res['issue'] = res['issue'] + issue[5].decode('utf-8')
+            res['issue'] = res['issue'] + '. ' + issue[5].decode('utf-8')
         linkList.append(res)
 
     for falseLink in falseLinkList:
         repo = repoMap[falseLink[0]]
         commit = repo.getOneCommit(falseLink[1])
         issue = mysqlOperator.selectOneIssue(falseLink[2])
+        if issue is None:
+            continue
 
         res = {}
         res['type'] = 0
@@ -67,7 +71,7 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
         res['issue'] = issue[4].decode('utf-8')
         # issue body
         if issue[5]:
-            res['issue'] = res['issue'] + issue[5].decode('utf-8')
+            res['issue'] = res['issue'] + '. ' + issue[5].decode('utf-8')
         linkList.append(res)
 
     index += 1

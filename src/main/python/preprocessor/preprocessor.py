@@ -487,19 +487,8 @@ if __name__ == '__main__':
     # print splitCode("CodeIndex")
     # print splitCode("codeIndex")
     print processHTMLNoCamel('''
-    Hello.
-
- This is my `test.test()` custom Theme:
-
- ```
-     <style name="CustomTheme" parent="Theme.Sherlock.Light">
-             <item name="android:textColor">@color/darkblue</item>
-     </style>
- ```
-
- If I use in my project: android:theme="@style/Theme.Sherlock.Light", everything works fine.
- If I use:  android:theme="@style/CustomTheme", getSupportActionBar() return null with Honeycomb devices.
-
+   print() is a function in Python 3DESCRIPTION HERE\r\n\r\n------------------------\r\n\r\nFollow this checklist to help us incorporate your contribution quickly and easily:\r\n\r\n - [ ] Make sure there is a [JIRA issue](https://issues.apache.org/jira/projects/BEAM/issues/) filed for the change (usually before you start working on it).  Trivial changes like typos do not require a JIRA issue.  Your pull request should address just this issue, without pulling in other changes.\r\n - [ ] Format the pull request title like `[BEAM-XXX] Fixes bug in ApproximateQuantiles`, where you replace `BEAM-XXX` with the appropriate JIRA issue.\r\n - [ ] Write a pull request description that is detailed enough to understand:\r\n   - [ ] What the pull request does\r\n   - [ ] Why it does it\r\n   - [ ] How it does it\r\n   - [ ] Why this approach\r\n - [ ] Each commit in the pull request should have a meaningful subject line and body.\r\n - [ ] Run `mvn clean verify` to make sure basic checks pass. A more thorough check will be performed on your pull request automatically.\r\n - [ ] If this contribution is large, please file an Apache [Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf).\r\n\r\n 
+        
      ''')
     # print processDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {
     # -            "HTML_COMMENT", JavadocUtils.getTokenName(20077));

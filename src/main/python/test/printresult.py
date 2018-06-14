@@ -7,7 +7,7 @@ import logging
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-model = word2vec.Word2Vec.load('nocode50904245-3.model')
+model = word2vec.Word2Vec.load('nocode50904245-1-1.model')
 
 try:
     y1 = model.similarity("performance","bug")
@@ -15,8 +15,8 @@ except KeyError:
     y1 = 0
 print "performance - bug:{}\n".format(y1)
 
-y2 = model.most_similar("fix", topn=20)
-print("like fix:\n")
+y2 = model.most_similar("perform", topn=20)
+print("like perform:\n")
 for word in y2:
     print word[0], word[1]
 print("*********\n")
