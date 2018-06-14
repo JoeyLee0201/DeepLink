@@ -228,6 +228,9 @@ upperCase = re.compile(r'^[A-Z]+[0-9]*$')
 upperExtCase = re.compile(r'^[A-Z]*(_+[A-Z]*)+[0-9]*$')
 methodInvocationCase = re.compile(r'([A-Za-z0-9_]+\.[A-Za-z0-9_]+)')
 
+LINK_TAG = 'rhlinkrh'
+CODE_TAG = 'rhcoderh'
+
 
 def isDelete(word):
     if word in stop_word:
@@ -261,6 +264,8 @@ def preprocess(paragraph):
 def preprocessNoCamel(paragraph):
     result = []
     paragraph = re.sub(r'(\[[\s\S]*?\])', '', paragraph, 0, re.I)
+    paragraph = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', LINK_TAG, paragraph, 0, re.I)
+    paragraph = re.sub(r'`[\s\S]*?`', CODE_TAG, paragraph, 0, re.I)
     sentences = tokenizer.tokenize(paragraph)
     for sentence in sentences:
         words = nltk.regexp_tokenize(sentence, pattern)
@@ -487,7 +492,7 @@ if __name__ == '__main__':
     # print splitCode("CodeIndex")
     # print splitCode("codeIndex")
     print processHTMLNoCamel('''
-   print() is a function in Python 3DESCRIPTION HERE\r\n\r\n------------------------\r\n\r\nFollow this checklist to help us incorporate your contribution quickly and easily:\r\n\r\n - [ ] Make sure there is a [JIRA issue](https://issues.apache.org/jira/projects/BEAM/issues/) filed for the change (usually before you start working on it).  Trivial changes like typos do not require a JIRA issue.  Your pull request should address just this issue, without pulling in other changes.\r\n - [ ] Format the pull request title like `[BEAM-XXX] Fixes bug in ApproximateQuantiles`, where you replace `BEAM-XXX` with the appropriate JIRA issue.\r\n - [ ] Write a pull request description that is detailed enough to understand:\r\n   - [ ] What the pull request does\r\n   - [ ] Why it does it\r\n   - [ ] How it does it\r\n   - [ ] Why this approach\r\n - [ ] Each commit in the pull request should have a meaningful subject line and body.\r\n - [ ] Run `mvn clean verify` to make sure basic checks pass. A more thorough check will be performed on your pull request automatically.\r\n - [ ] If this contribution is large, please file an Apache [Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf).\r\n\r\n 
+   print() is a function in Python 3DESCRIPTION HERE `test.test()`\r\n\r\n------------------------\r\n\r\nFollow this checklist to help us incorporate your contribution quickly and easily:\r\n\r\n - [ ] Make sure there is a [JIRA issue](https://issues.apache.org/jira/projects/BEAM/issues/) filed for the change (usually before you start working on it).  Trivial changes like typos do not require a JIRA issue.  Your pull request should address just this issue, without pulling in other changes.\r\n - [ ] Format the pull request title like `[BEAM-XXX] Fixes bug in ApproximateQuantiles`, where you replace `BEAM-XXX` with the appropriate JIRA issue.\r\n - [ ] Write a pull request description that is detailed enough to understand:\r\n   - [ ] What the pull request does\r\n   - [ ] Why it does it\r\n   - [ ] How it does it\r\n   - [ ] Why this approach\r\n - [ ] Each commit in the pull request should have a meaningful subject line and body.\r\n - [ ] Run `mvn clean verify` to make sure basic checks pass. A more thorough check will be performed on your pull request automatically.\r\n - [ ] If this contribution is large, please file an Apache [Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf).\r\n\r\n 
         
      ''')
     # print processDiffCode('''@@ -349 +349 @@ public class JavadocUtilsTest {

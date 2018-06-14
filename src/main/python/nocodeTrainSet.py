@@ -52,10 +52,12 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
         res = {}
         res['type'] = 1
         res['commit'] = commit.message.decode('utf-8')
-        res['issue'] = issue[4].decode('utf-8')
+        res['issuetitle'] = issue[4].decode('utf-8')
         # issue body
         if issue[5]:
-            res['issue'] = res['issue'] + '. ' + issue[5].decode('utf-8')
+            res['issue'] = issue[5].decode('utf-8')
+        else:
+            res['issue'] = ''
         linkList.append(res)
 
     for falseLink in falseLinkList:
@@ -68,10 +70,12 @@ while len(trueLinkList) > 0 and len(falseLinkList) > 0:
         res = {}
         res['type'] = 0
         res['commit'] = commit.message.decode('utf-8')
-        res['issue'] = issue[4].decode('utf-8')
+        res['issuetitle'] = issue[4].decode('utf-8')
         # issue body
         if issue[5]:
-            res['issue'] = res['issue'] + '. ' + issue[5].decode('utf-8')
+            res['issue'] = issue[5].decode('utf-8')
+        else:
+            res['issue'] = ''
         linkList.append(res)
 
     index += 1
