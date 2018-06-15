@@ -11,8 +11,8 @@ import json
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 VECTOR_SIZE = 100
-TRAIN_ITERS = 1000
-BATCH_SIZE = 20
+TRAIN_ITERS = 300
+BATCH_SIZE = 16
 HIDDEN_SIZE = 100
 N_INPUTS = 100
 LEARNING_RATE = 0.001
@@ -201,7 +201,7 @@ def getLoss(score, t):
     # score = tf.reshape(score, [BATCH_SIZE, 1])
     rs = t - score
     rs = tf.abs(rs)
-    return tf.reduce_mean(rs)
+    return tf.reduce_sum(rs)
 
 
 # Define loss and optimizer
@@ -238,14 +238,14 @@ with tf.Session() as sess:
         for x1, x2, t, l1, l2, lt, y in train_batches:
             loss, _ = sess.run([loss_op, train_op], feed_dict={input1: x1, input2: x2, inputT: t, len1: l1, len2: l2, lent: lt, target: y})
 
-        if step % 100 == 0:
+        # if step % 100 == 0:
             temp = []
             total_correct = 0
-            for x1, x2, t, l1, l2, lt, y in test_batches:
-                score, loss = sess.run([cos_score, loss_op], feed_dict={input1: x1, input2: x2, inputT: t, len1: l1, len2: l2, lent: lt, target: y})
+            for x11, x21, t1, l11, l21, lt1, y1 in test_batches:
+                score, loss = sess.run([cos_score, loss_op], feed_dict={input1: x11, input2: x21, inputT: t1, len1: l11, len2: l21, lent: lt1, target: y1})
                 temp.append(loss)
                 total_correct = total_correct + get_correct(score, y)
-            logging.info(str(temp))
+            # logging.info(str(temp))
             logging.info("At the step %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct)/total_tests))
     saver.save(sess, 'rnnmodel/adam/rnn', global_step=TRAIN_ITERS)
     logging.info("Optimization Finished!")
