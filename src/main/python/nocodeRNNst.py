@@ -237,13 +237,14 @@ with tf.Session() as sess:
         logging.info("Step: " + str(step))
         for x1, x2, t, l1, l2, lt, y in train_batches:
             loss, _ = sess.run([loss_op, train_op], feed_dict={input1: x1, input2: x2, inputT: t, len1: l1, len2: l2, lent: lt, target: y})
+            logging.info("At the step %d, the loss is %f" % (step, loss))
 
-        # if step % 100 == 0:
+        if step % 1 == 0:
             temp = []
             total_correct = 0
             for x11, x21, t1, l11, l21, lt1, y1 in test_batches:
-                score, loss = sess.run([cos_score, loss_op], feed_dict={input1: x11, input2: x21, inputT: t1, len1: l11, len2: l21, lent: lt1, target: y1})
-                temp.append(loss)
+                score, loss1 = sess.run([cos_score, loss_op], feed_dict={input1: x11, input2: x21, inputT: t1, len1: l11, len2: l21, lent: lt1, target: y1})
+                temp.append(loss1)
                 total_correct = total_correct + get_correct(score, y1)
             # logging.info(str(temp))
             logging.info("At the step %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct)/total_tests))
