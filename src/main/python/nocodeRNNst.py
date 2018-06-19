@@ -12,10 +12,10 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 VECTOR_SIZE = 100
 TRAIN_ITERS = 300
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 HIDDEN_SIZE = 100
 N_INPUTS = 100
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.01
 
 wordModel = word2vec.Word2Vec.load('test/nocode50904245-1-2.model')
 
@@ -157,17 +157,17 @@ target = tf.placeholder(tf.float64, [BATCH_SIZE, 1])
 
 
 def RNN(input_data, seq_len):
-    rnn_cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.BasicLSTMCell(HIDDEN_SIZE) for _ in range(3)])
+    rnn_cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.BasicLSTMCell(HIDDEN_SIZE)) for _ in range(3)])
     outputs, state = tf.nn.dynamic_rnn(rnn_cell, input_data, sequence_length=seq_len, dtype=tf.float64)
     return outputs, state
 
 
 # initializer = tf.random_uniform_initializer(-0.5, 0.5, dtype=tf.float32)
-with tf.variable_scope("commit", reuse=tf.AUTO_REUSE):
+with tf.variable_scope("commit"):
     outputs1, states1 = RNN(input1, len1)
-with tf.variable_scope("issue", reuse=tf.AUTO_REUSE):
+with tf.variable_scope("issue"):
     outputs2, states2 = RNN(input2, len2)
-with tf.variable_scope("title", reuse=tf.AUTO_REUSE):
+with tf.variable_scope("title"):
     outputs3, states3 = RNN(inputT, lent)
 
 newoutput1 = states1[-1].h
@@ -244,7 +244,7 @@ with tf.Session() as sess:
             for x11, x21, t1, l11, l21, lt1, y1 in test_batches:
                 score, loss = sess.run([cos_score, loss_op], feed_dict={input1: x11, input2: x21, inputT: t1, len1: l11, len2: l21, lent: lt1, target: y1})
                 temp.append(loss)
-                total_correct = total_correct + get_correct(score, y)
+                total_correct = total_correct + get_correct(score, y1)
             # logging.info(str(temp))
             logging.info("At the step %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct)/total_tests))
     saver.save(sess, 'rnnmodel/adam/rnn', global_step=TRAIN_ITERS)
