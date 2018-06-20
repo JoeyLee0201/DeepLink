@@ -82,4 +82,5 @@ def buildIssueAndCommitSeq(repoId, repoPath, corpusName):
 
 
 if __name__ == '__main__':
-    buildIssueAndCommitSeq(50904245, '/home/fdse/user/rh/gitrepo/apache/beam', '50904245-1')
+    # buildIssueAndCommitSeq(50904245, '/home/fdse/user/rh/gitrepo/apache/beam', '50904245-1')
+    buildIssueAndCommitSeq(27729926, '/home/fdse/user/rh/gitrepo/grpc-java', '27729926')

@@ -77,8 +77,10 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
 
 
 if __name__ == '__main__':
-    buildTrainSet('true_link_nocode', 'false_link_nocode', 50904245, '/home/fdse/user/rh/gitrepo/apache/beam',
-                  510, 70000, 510, 600)
+    # buildTrainSet('true_link_nocode', 'false_link_nocode', 50904245, '/home/fdse/user/rh/gitrepo/apache/beam',
+    #               510, 70000, 510, 600)
+    buildTrainSet('true_link_27729926', 'false_link_27729926', 27729926, '/home/fdse/user/rh/gitrepo/grpc-java',
+                  320, 16000, 320, 320)
 
 # FALSE_TABLE = 'heal_false_link'
 # TRUE_TABLE = 'heal_true_link'
