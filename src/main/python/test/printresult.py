@@ -7,7 +7,7 @@ import logging
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-model = word2vec.Word2Vec.load('nocode50904245-1-2.model')
+model = word2vec.Word2Vec.load('nocode27729926.model')
 
 # try:
 #     y1 = model.similarity("performance","bug")
