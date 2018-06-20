@@ -18,83 +18,17 @@ def getPath(s):
     return "/home/fdse/data/prior_repository/"+temp
 
 
-def buildIssueAndCommit():
-    repos = linkOperator.selectOneRepo(50904245)
-    # repos = linkOperator.selectRepoOver(5000)
-    corpus = open('nocode50904245.dat', "w")
-    commitCorpus = open('commit50904245.dat', "w")
-    issueCorpus = open('issue50904245.dat', "w")
-    try:
-        print 'start'
-        for highRepo in repos:
-            try:
-                # commit part
-                path = getPath(highRepo[1])
-                gitRe = gitResolver.GitResolver(path)
-                commits = gitRe.getCommits()
-                print path, ":", len(commits)
-                for commit in commits:
-                    words = preprocessor.preprocessToWord(commit.message.decode('utf-8'))
-                    if len(words):
-                        # 不是空列表
-                        for word in words:
-                            corpus.write(word.encode('utf-8'))
-                            corpus.write(" ")
-                            commitCorpus.write(word.encode('utf-8'))
-                            commitCorpus.write(" ")
-                        corpus.write("\n")
-                        commitCorpus.write("\n")
-                # issue part
-                issues = mysqlOperator.selectAllIssueInOneRepo(highRepo[0])
-                print highRepo[0], ":", len(issues)
-                for issue in issues:
-                    titleWords = preprocessor.preprocessToWord(issue[4].decode('utf-8'))
-                    if len(titleWords):
-                        # 不是空列表
-                        for word in titleWords:
-                            corpus.write(word.encode('utf-8'))
-                            corpus.write(" ")
-                            issueCorpus.write(word.encode('utf-8'))
-                            issueCorpus.write(" ")
-                        corpus.write("\n")
-                        issueCorpus.write("\n")
-                    if issue[5]:
-                        body = preprocessor.processHTML(issue[5].decode('utf-8'))
-                        bodyWords = body[1]
-                        if len(bodyWords):
-                            # 不是空列表
-                            for word in bodyWords:
-                                corpus.write(word.encode('utf-8'))
-                                corpus.write(" ")
-                                issueCorpus.write(word.encode('utf-8'))
-                                issueCorpus.write(" ")
-                            corpus.write("\n")
-                            issueCorpus.write("\n")
-            except BaseException, e:
-                print "***", highRepo[0], ":", e
-                print traceback.format_exc()
-        print 'end'
-    except IOError, e:
-        # 检查open()是否失败，通常是IOError类型的错误
-        print "***", e
-        print traceback.format_exc()
-    finally:
-        corpus.close()
-        commitCorpus.close()
-        issueCorpus.close()
-
-
-def buildIssueAndCommitSeq():
-    corpus = open('corpus/nocode50904245-1.dat', "w")
-    commitCorpus = open('corpus/commit50904245-1.dat', "w")
-    issueCorpus = open('corpus/issue50904245-1.dat', "w")
+def buildIssueAndCommitSeq(repoId, repoPath, corpusName):
+    corpus = open('corpus/nocode%s.dat' % corpusName, "w")
+    commitCorpus = open('corpus/commit%s.dat' % corpusName, "w")
+    issueCorpus = open('corpus/issue%s.dat' % corpusName, "w")
     try:
         print 'start'
         try:
             # commit part
-            gitRe = gitResolver.GitResolver('/home/fdse/user/rh/gitrepo/apache/beam')
+            gitRe = gitResolver.GitResolver(repoPath)
             commits = gitRe.getCommits()
-            print '/home/fdse/user/rh/gitrepo/apache/beam', ":", len(commits)
+            print repoPath, ":", len(commits)
             for commit in commits:
                 seqs = preprocessor.preprocessNoCamel(commit.message.decode('utf-8'))
                 if len(seqs):
@@ -108,8 +42,8 @@ def buildIssueAndCommitSeq():
                         corpus.write("\n")
                         commitCorpus.write("\n")
             # issue part
-            issues = mysqlOperator.selectAllIssueInOneRepo(50904245)
-            print "50904245 :", len(issues)
+            issues = mysqlOperator.selectAllIssueInOneRepo(repoId)
+            print repoId, ":", len(issues)
             for issue in issues:
                 titleSeqs = preprocessor.preprocessNoCamel(issue[4].decode('utf-8'))
                 if len(titleSeqs):
@@ -135,7 +69,7 @@ def buildIssueAndCommitSeq():
                             corpus.write("\n")
                             issueCorpus.write("\n")
         except BaseException, e:
-            print "*** 50904245 :", e
+            print "***", repoId, ":", e
             print traceback.format_exc()
         print 'end'
     except IOError, e:
@@ -148,4 +82,4 @@ def buildIssueAndCommitSeq():
 
 
 if __name__ == '__main__':
-    buildIssueAndCommitSeq()
+    buildIssueAndCommitSeq(50904245, '/home/fdse/user/rh/gitrepo/apache/beam', '50904245-1')
