@@ -19,7 +19,7 @@ LEARNING_RATE = 0.01
 
 LSTM_KEEP_PROB = 0.9
 
-wordModel = word2vec.Word2Vec.load('test/nocode50904245-1-2.model')
+wordModel = word2vec.Word2Vec.load('test/nocode27729926.model')
 
 
 # text data
@@ -220,7 +220,7 @@ def run_epoch(session, model, batches, step):
     for x1, x2, t, l1, l2, lt, y in batches:
         loss, _ = session.run([model.loss_op, model.train_op],
                            feed_dict={model.input1: x1, model.input2: x2, model.inputT: t, model.len1: l1, model.len2: l2, model.lent: lt, model.target: y})
-        logging.info("At the step %d, the avg loss is %f" % (step, loss))
+        logging.info("At the step %d, the loss is %f" % (step, loss))
 
 
 def test_epoch(session, model, batches, step):
@@ -248,8 +248,8 @@ def get_correct(score, target):
 
 
 def main():
-    train_batches = make_batches(read_data(), BATCH_SIZE)
-    test_batches = make_batches(read_data(path="./testset1"), BATCH_SIZE)
+    train_batches = make_batches(read_data(path='./train27729926'), BATCH_SIZE)
+    test_batches = make_batches(read_data(path="./testset27729926"), BATCH_SIZE)
 
     with tf.variable_scope("rnn_model", reuse=None):
         train_model = MyModel(True, BATCH_SIZE)

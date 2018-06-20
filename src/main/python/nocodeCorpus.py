@@ -13,11 +13,6 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
-def getPath(s):
-    temp = re.sub(r'https://github.com/', '', s, 0, re.I)
-    return "/home/fdse/data/prior_repository/"+temp
-
-
 def buildIssueAndCommitSeq(repoId, repoPath, corpusName):
     corpus = open('corpus/nocode%s.dat' % corpusName, "w")
     commitCorpus = open('corpus/commit%s.dat' % corpusName, "w")
