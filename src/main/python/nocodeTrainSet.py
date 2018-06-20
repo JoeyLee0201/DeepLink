@@ -71,7 +71,7 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
         trueStart += trueGap
         falseStart += falseGap
         trueLinkList = linkOperator.selectInScope((trueTable, trueStart, trueStart + trueCount))
-        falseLinkList = getRandomFalse(falseStart, falseStart + falseGap, falseCount)
+        falseLinkList = getRandomFalse(falseTable, falseStart, falseStart + falseGap, falseCount)
     mysqlOperator.close()
     linkOperator.close()
 
