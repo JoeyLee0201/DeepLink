@@ -19,7 +19,9 @@ LEARNING_RATE = 0.01
 
 LSTM_KEEP_PROB = 0.9
 
-wordModel = word2vec.Word2Vec.load('test/nocode27729926.model')
+REPO_ID = 13421878
+
+wordModel = word2vec.Word2Vec.load('test/nocode%d.model' % REPO_ID)
 
 
 # text data
@@ -39,7 +41,7 @@ def text2vec(text, isHtml):
 
 
 #  shape = [None, seq len, Vec size]
-def read_data(path='./train1'):
+def read_data(path):
     X1 = []
     X2 = []
     T = []
@@ -234,7 +236,7 @@ def test_epoch(session, model, batches, step):
                                            model.target: y1})
         temp.append(loss)
         total_correct = total_correct + get_correct(score, y1)
-    logging.info("At the step %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct) / total_tests))
+    logging.info("At the test %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct) / total_tests))
 
 
 def get_correct(score, target):
@@ -248,8 +250,8 @@ def get_correct(score, target):
 
 
 def main():
-    train_batches = make_batches(read_data(path='./train27729926'), BATCH_SIZE)
-    test_batches = make_batches(read_data(path="./testset27729926"), BATCH_SIZE)
+    train_batches = make_batches(read_data(path='./train%d' % REPO_ID), BATCH_SIZE)
+    test_batches = make_batches(read_data(path="./testset%d" % REPO_ID), BATCH_SIZE)
 
     with tf.variable_scope("rnn_model", reuse=None):
         train_model = MyModel(True, BATCH_SIZE)
