@@ -81,8 +81,10 @@ if __name__ == '__main__':
     #               510, 70000, 510, 600)
     # buildTrainSet('true_link_27729926', 'false_link_27729926', 27729926, '/home/fdse/user/rh/gitrepo/grpc-java',
     #               320, 16000, 320, 320)
-    buildTrainSet('true_link_13421878', 'false_link_13421878', 13421878, '/home/fdse/user/rh/gitrepo/pentaho-kettle',
-                  320, 19000, 320, 320)
+    # buildTrainSet('true_link_13421878', 'false_link_13421878', 13421878, '/home/fdse/user/rh/gitrepo/pentaho-kettle',
+    #               320, 19000, 320, 320)
+    buildTrainSet('true_link_12499251', 'false_link_12499251', 12499251, '/home/fdse/user/rh/gitrepo/checkstyle',
+                  320, 18000, 320, 320)
 
 # FALSE_TABLE = 'heal_false_link'
 # TRUE_TABLE = 'heal_true_link'

@@ -19,7 +19,7 @@ LEARNING_RATE = 0.01
 
 LSTM_KEEP_PROB = 0.9
 
-REPO_ID = 13421878
+REPO_ID = 12499251
 
 wordModel = word2vec.Word2Vec.load('test/nocode%d.model' % REPO_ID)
 
