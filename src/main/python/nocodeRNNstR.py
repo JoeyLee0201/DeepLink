@@ -12,14 +12,16 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 VECTOR_SIZE = 100
 TRAIN_ITERS = 300
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 HIDDEN_SIZE = 100
 N_INPUTS = 100
 LEARNING_RATE = 0.01
 
 LSTM_KEEP_PROB = 0.9
 
-REPO_ID = 12499251
+# REPO_ID = 12499251
+REPO_ID = 20587599
+MAX_RECORD = {'step': -1, 'acc': 0.0}
 
 wordModel = word2vec.Word2Vec.load('test/nocode%d.model' % REPO_ID)
 
@@ -210,7 +212,7 @@ class MyModel(object):
         dropout_keep_prob = LSTM_KEEP_PROB if is_training else 1.0
         lstm_cells = [
             tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.BasicLSTMCell(HIDDEN_SIZE), output_keep_prob=dropout_keep_prob)
-            for _ in range(3)
+            for _ in range(1)
         ]
         rnn_cell = tf.nn.rnn_cell.MultiRNNCell(lstm_cells)
         outputs, state = tf.nn.dynamic_rnn(rnn_cell, input_data, sequence_length=seq_len, dtype=tf.float64)
@@ -237,15 +239,25 @@ def test_epoch(session, model, batches, step):
         temp.append(loss)
         total_correct = total_correct + get_correct(score, y1)
     logging.info("At the test %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct) / total_tests))
+    if (float(total_correct) / total_tests) > MAX_RECORD['acc']:
+        MAX_RECORD['step'] = step
+        MAX_RECORD['acc'] = float(total_correct) / total_tests
+    logging.info("MAX is at step %d: %f" % (MAX_RECORD['step'], MAX_RECORD['acc']))
 
 
 def get_correct(score, target):
-    rs = target - score
-    rs = np.abs(rs)
     result = 0
-    for onescore in rs:
-        if onescore[0] < 0.5:
+    for i in range(len(target)):
+        if target[i][0] == 1 and score[i][0] > 0.5:
             result = result + 1
+            logging.info(target[i][0])
+        elif target[i][0] == 0 and score[i][0] < 0.5:
+            result = result + 1
+            logging.info(target[i][0])
+    #
+    # for onescore in rs:
+    #     if onescore[0] < 0.5:
+    #         result = result + 1
     return result
 
 

@@ -16,7 +16,8 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 VECTOR_SIZE = 100
 # REPO_ID = 13421878
-REPO_ID = 12499251
+# REPO_ID = 12499251
+REPO_ID = 20587599
 
 
 def buildIssueAndCommitSeq(repoId, repoPath, corpusName):
@@ -92,5 +93,6 @@ if __name__ == '__main__':
     # buildIssueAndCommitSeq(50904245, '/home/fdse/user/rh/gitrepo/apache/beam', '50904245-1')
     # buildIssueAndCommitSeq(27729926, '/home/fdse/user/rh/gitrepo/grpc-java', '27729926')
     # buildIssueAndCommitSeq(REPO_ID, '/home/fdse/user/rh/gitrepo/pentaho-kettle', str(REPO_ID))
-    buildIssueAndCommitSeq(REPO_ID, '/home/fdse/user/rh/gitrepo/checkstyle', str(REPO_ID))
+    # buildIssueAndCommitSeq(REPO_ID, '/home/fdse/user/rh/gitrepo/checkstyle', str(REPO_ID))
+    buildIssueAndCommitSeq(REPO_ID, '/home/fdse/user/rh/gitrepo/flink', str(REPO_ID))
     buildEmbedding()
