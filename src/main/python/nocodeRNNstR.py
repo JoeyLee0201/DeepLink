@@ -247,13 +247,16 @@ def test_epoch(session, model, batches, step):
 
 def get_correct(score, target):
     result = 0
+    zeros = 0
+    ones = 0
     for i in range(len(target)):
         if target[i][0] == 1 and score[i][0] > 0.5:
             result = result + 1
-            logging.info(target[i][0])
+            ones = ones + 1
         elif target[i][0] == 0 and score[i][0] < 0.5:
             result = result + 1
-            logging.info(target[i][0])
+            zeros = zeros + 1
+    logging.info("%d(0s) : %d(1s)" % (zeros, ones))
     #
     # for onescore in rs:
     #     if onescore[0] < 0.5:
