@@ -7,13 +7,12 @@ import numpy as np
 import logging
 import os
 import json
-from tensorflow.python import debug as tfdbg
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 VECTOR_SIZE = 100
 TRAIN_ITERS = 300
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 HIDDEN_SIZE = 100
 N_INPUTS = 100
 LEARNING_RATE = 0.01
@@ -158,36 +157,28 @@ class MyModel(object):
     def __init__(self, is_training, batch_size):
         self.batch_size = batch_size
 
-        self.input1 = tf.placeholder(tf.float64, [BATCH_SIZE, None, VECTOR_SIZE])
-        self.input2 = tf.placeholder(tf.float64, [BATCH_SIZE, None, VECTOR_SIZE])
-        self.inputT = tf.placeholder(tf.float64, [BATCH_SIZE, None, VECTOR_SIZE])
-        self.len1 = tf.placeholder(tf.int64, [BATCH_SIZE, ])
-        self.len2 = tf.placeholder(tf.int64, [BATCH_SIZE, ])
-        self.lent = tf.placeholder(tf.int64, [BATCH_SIZE, ])
-        self.target = tf.placeholder(tf.float64, [BATCH_SIZE, 1])
+        self.input1 = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
+        self.input2 = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
+        self.inputT = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
+        self.len1 = tf.placeholder(tf.int32, [BATCH_SIZE, ])
+        self.len2 = tf.placeholder(tf.int32, [BATCH_SIZE, ])
+        self.lent = tf.placeholder(tf.int32, [BATCH_SIZE, ])
+        self.target = tf.placeholder(tf.float32, [BATCH_SIZE, 1])
 
         with tf.variable_scope("commit"):
             outputs1, states1 = self.RNN(self.input1, self.len1, is_training)
-            tf.check_numerics(outputs1, 'output1 error')
         with tf.variable_scope("issue"):
             outputs2, states2 = self.RNN(self.input2, self.len2, is_training)
-            tf.check_numerics(outputs2, 'output1 error')
         with tf.variable_scope("title"):
             outputs3, states3 = self.RNN(self.inputT, self.lent, is_training)
-            tf.check_numerics(outputs3, 'output1 error')
 
         newoutput1 = states1[-1].h
         newoutput2 = states2[-1].h
         newoutput3 = states3[-1].h
-        tf.check_numerics(newoutput1, 'newoutput1 error')
-        tf.check_numerics(newoutput2, 'newoutput2 error')
-        tf.check_numerics(newoutput3, 'newoutput3 error')
 
         # Define loss and optimizer
         self.cos_score = self.getScore(newoutput1, newoutput2, newoutput3)
-        tf.check_numerics(self.cos_score, 'cos error')
         self.loss_op = self.getLoss(self.cos_score, self.target)
-        tf.check_numerics(self.loss_op, 'loss_op error')
 
         if not is_training:
             return
@@ -224,7 +215,7 @@ class MyModel(object):
             for _ in range(1)
         ]
         rnn_cell = tf.nn.rnn_cell.MultiRNNCell(lstm_cells)
-        outputs, state = tf.nn.dynamic_rnn(rnn_cell, input_data, sequence_length=seq_len, dtype=tf.float64)
+        outputs, state = tf.nn.dynamic_rnn(rnn_cell, input_data, sequence_length=seq_len, dtype=tf.float32)
         return outputs, state
 
 
@@ -285,8 +276,6 @@ def main():
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         saver = tf.train.Saver()
-        sess = tfdbg.LocalCLIDebugWrapperSession(sess)
-        sess.add_tensor_filter("has_inf_or_nan", tfdbg.has_inf_or_nan)
         sess.run(init)
 
         for step in range(TRAIN_ITERS):
