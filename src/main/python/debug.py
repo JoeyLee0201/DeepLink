@@ -7,6 +7,7 @@ import numpy as np
 import logging
 import os
 import json
+from tensorflow.python import debug as tfdbg
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -284,6 +285,8 @@ def main():
     init = tf.global_variables_initializer()
     with tf.Session() as sess:
         saver = tf.train.Saver()
+        sess = tfdbg.LocalCLIDebugWrapperSession(sess)
+        sess.add_tensor_filter("has_inf_or_nan", tfdbg.has_inf_or_nan)
         sess.run(init)
 
         for step in range(TRAIN_ITERS):
