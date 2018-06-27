@@ -228,16 +228,17 @@ def run_epoch(session, model, batches, step):
 
 
 def test_epoch(session, model, batches, step):
-    # session.run(model.init_state)
     temp = []
     total_correct = 0
     total_tests = len(batches) * BATCH_SIZE
+    index = 0
     for x11, x21, t1, l11, l21, lt1, y1 in batches:
         score, loss = session.run([model.cos_score, model.loss_op],
                                 feed_dict={model.input1: x11, model.input2: x21, model.inputT: t1, model.len1: l11, model.len2: l21, model.lent: lt1,
                                            model.target: y1})
         temp.append(loss)
-        total_correct = total_correct + get_correct(score, y1)
+        total_correct = total_correct + get_correct(score, y1, index)
+        index = index + 1
     logging.info("At the test %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct) / total_tests))
     if (float(total_correct) / total_tests) > MAX_RECORD['acc']:
         MAX_RECORD['step'] = step
@@ -245,10 +246,11 @@ def test_epoch(session, model, batches, step):
     logging.info("MAX is at step %d: %f" % (MAX_RECORD['step'], MAX_RECORD['acc']))
 
 
-def get_correct(score, target):
+def get_correct(score, target, index):
     result = 0
     zeros = 0
     ones = 0
+    base = index * BATCH_SIZE
     for i in range(len(target)):
         if target[i][0] == 1 and score[i][0] > 0.5:
             result = result + 1
@@ -256,6 +258,8 @@ def get_correct(score, target):
         elif target[i][0] == 0 and score[i][0] < 0.5:
             result = result + 1
             zeros = zeros + 1
+        else:
+            logging.info("%d example: cos(%f) target(%f)" % ((base + i), score[i][0], target[i][0]))
     logging.info("%d(0s) : %d(1s)" % (zeros, ones))
     #
     # for onescore in rs:
