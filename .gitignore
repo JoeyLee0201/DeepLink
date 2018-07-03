@@ -7,3 +7,4 @@
 *.npy
 /.idea/
 /src/main/python/.idea
+*.pyc
