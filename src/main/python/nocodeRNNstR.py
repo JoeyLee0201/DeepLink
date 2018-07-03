@@ -20,7 +20,7 @@ LEARNING_RATE = 0.01
 LSTM_KEEP_PROB = 0.9
 
 # REPO_ID = 12499251
-REPO_ID = 20587599
+REPO_ID = 50904245
 MAX_RECORD = {'step': -1, 'acc': 0.0}
 
 wordModel = word2vec.Word2Vec.load('test/nocode%d.model' % REPO_ID)
@@ -157,13 +157,13 @@ class MyModel(object):
     def __init__(self, is_training, batch_size):
         self.batch_size = batch_size
 
-        self.input1 = tf.placeholder(tf.float64, [BATCH_SIZE, None, VECTOR_SIZE])
-        self.input2 = tf.placeholder(tf.float64, [BATCH_SIZE, None, VECTOR_SIZE])
-        self.inputT = tf.placeholder(tf.float64, [BATCH_SIZE, None, VECTOR_SIZE])
-        self.len1 = tf.placeholder(tf.int64, [BATCH_SIZE, ])
-        self.len2 = tf.placeholder(tf.int64, [BATCH_SIZE, ])
-        self.lent = tf.placeholder(tf.int64, [BATCH_SIZE, ])
-        self.target = tf.placeholder(tf.float64, [BATCH_SIZE, 1])
+        self.input1 = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
+        self.input2 = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
+        self.inputT = tf.placeholder(tf.float32, [BATCH_SIZE, None, VECTOR_SIZE])
+        self.len1 = tf.placeholder(tf.int32, [BATCH_SIZE, ])
+        self.len2 = tf.placeholder(tf.int32, [BATCH_SIZE, ])
+        self.lent = tf.placeholder(tf.int32, [BATCH_SIZE, ])
+        self.target = tf.placeholder(tf.float32, [BATCH_SIZE, 1])
 
         with tf.variable_scope("commit"):
             outputs1, states1 = self.RNN(self.input1, self.len1, is_training)
@@ -215,7 +215,7 @@ class MyModel(object):
             for _ in range(1)
         ]
         rnn_cell = tf.nn.rnn_cell.MultiRNNCell(lstm_cells)
-        outputs, state = tf.nn.dynamic_rnn(rnn_cell, input_data, sequence_length=seq_len, dtype=tf.float64)
+        outputs, state = tf.nn.dynamic_rnn(rnn_cell, input_data, sequence_length=seq_len, dtype=tf.float32)
         return outputs, state
 
 
@@ -250,7 +250,6 @@ def get_correct(score, target, index):
     result = 0
     zeros = 0
     ones = 0
-    base = index * BATCH_SIZE
     for i in range(len(target)):
         if target[i][0] == 1 and score[i][0] > 0.5:
             result = result + 1
@@ -259,12 +258,8 @@ def get_correct(score, target, index):
             result = result + 1
             zeros = zeros + 1
         else:
-            logging.info("%d example: cos(%f) target(%f)" % ((base + i), score[i][0], target[i][0]))
+            logging.info("%d example: cos(%f) target(%f)" % ((index + i * BATCH_SIZE), score[i][0], target[i][0]))
     logging.info("%d(0s) : %d(1s)" % (zeros, ones))
-    #
-    # for onescore in rs:
-    #     if onescore[0] < 0.5:
-    #         result = result + 1
     return result
 
 
