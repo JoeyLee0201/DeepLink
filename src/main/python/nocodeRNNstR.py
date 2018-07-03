@@ -237,7 +237,7 @@ def test_epoch(session, model, batches, step):
                                 feed_dict={model.input1: x11, model.input2: x21, model.inputT: t1, model.len1: l11, model.len2: l21, model.lent: lt1,
                                            model.target: y1})
         temp.append(loss)
-        total_correct = total_correct + get_correct(score, y1, index)
+        total_correct = total_correct + get_correct(score, y1, index, len(batches))
         index = index + 1
     logging.info("At the test %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct) / total_tests))
     if (float(total_correct) / total_tests) > MAX_RECORD['acc']:
@@ -246,7 +246,7 @@ def test_epoch(session, model, batches, step):
     logging.info("MAX is at step %d: %f" % (MAX_RECORD['step'], MAX_RECORD['acc']))
 
 
-def get_correct(score, target, index):
+def get_correct(score, target, index, NUM):
     result = 0
     zeros = 0
     ones = 0
@@ -258,7 +258,7 @@ def get_correct(score, target, index):
             result = result + 1
             zeros = zeros + 1
         else:
-            logging.info("%d example: cos(%f) target(%f)" % ((index + i * BATCH_SIZE), score[i][0], target[i][0]))
+            logging.info("%d-%d example %d : cos(%f) target(%f)" % (index, i, (NUM*i+index), score[i][0], target[i][0]))
     logging.info("%d(0s) : %d(1s)" % (zeros, ones))
     return result
 
