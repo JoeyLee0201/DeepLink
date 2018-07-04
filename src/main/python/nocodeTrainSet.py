@@ -64,10 +64,10 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
 
         index += 1
         res = json.dumps(linkList, encoding="utf-8", indent=4)
-        trainSet = open('./train/traincase%d-%d.dat' % (repoId, index), "w")
+        trainSet = open('./train%d/traincase%d-%d.dat' % (repoId, repoId, index), "w")
         trainSet.write(res)
         trainSet.close()
-        print './train/traincase%d-%d.dat' % (repoId, index), 'Over'
+        print './train%d/traincase%d-%d.dat' % (repoId, repoId, index), 'Over'
 
         trueStart += trueGap
         falseStart += falseGap
