@@ -7,10 +7,11 @@ import numpy as np
 import logging
 import os
 import json
+import nocodeRepoInfo
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-VECTOR_SIZE = 100
+VECTOR_SIZE = nocodeRepoInfo.VECTOR_SIZE
 TRAIN_ITERS = 300
 BATCH_SIZE = 16
 HIDDEN_SIZE = 100
@@ -19,8 +20,7 @@ LEARNING_RATE = 0.01
 
 LSTM_KEEP_PROB = 0.9
 
-# REPO_ID = 12499251
-REPO_ID = 50904245
+REPO_ID = nocodeRepoInfo.REPO_MAP[nocodeRepoInfo.USE_REPO_INDEX]['id']
 MAX_RECORD = {'step': -1, 'acc': 0.0}
 
 wordModel = word2vec.Word2Vec.load('test/nocode%d.model' % REPO_ID)
