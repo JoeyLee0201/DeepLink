@@ -63,6 +63,10 @@ def read_data(path):
                 commit = text2vec(map['commit'], False)
                 issue = text2vec(map['issue'], True)
                 title = text2vec(map['issuetitle'], False)
+                if len(commit) < 5:
+                    continue
+                if len(issue)+len(title) < 5:
+                    continue
                 L1.append(len(commit))
                 X1.append(commit)
                 L2.append(len(issue))
