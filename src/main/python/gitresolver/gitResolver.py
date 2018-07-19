@@ -45,3 +45,13 @@ class GitResolver:
 
     def getOneCommit(self, sha):
         return self.repo.commit(sha)
+
+    def getFiles(self, sha):
+        result = []
+        commit = self.repo.commit(sha)
+        if len(commit.parents) == 1:
+            changed_files = [item.a_path for item in commit.diff(commit.parents[0])]
+            for changeFile in changed_files:
+                result.append({'path': changeFile, 'text': commit.tree[changeFile].data_stream.read()})
+        return result
+
