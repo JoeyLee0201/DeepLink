@@ -174,7 +174,7 @@ if __name__ == '__main__':
     # for link in links:
     #     trueLinks.append(link[0])
     # print selectAllIssueInOneRepoDate((1451060, '2011-03-18 11:45:51', '2011-03-18 11:45:51'))
-    # print len(selectOneIssue('checkstyle/checkstyle/issues/270'))
+    print len(selectCommentInOneIssue('checkstyle/checkstyle/issues/270'))
     # print selectExistIssueOnCommit((50904245, 'd56db36408aa9b45ea6d685d035c983c76a14b06'))
     print selectOneIssue('apache/beam/issues/2601')
     close()
