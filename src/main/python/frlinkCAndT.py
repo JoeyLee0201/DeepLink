@@ -62,9 +62,13 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                 res['commitText'].append(frpreprocesser.extractText(commit.message.decode('utf-8')))
                 for changeFile in files:
                     if not changeFile['path'].endswith('.java'):
-                        res['commitText'].append(frpreprocesser.extractText(changeFile['text']))
+                        try:
+                            res['commitText'].append(frpreprocesser.extractText(changeFile['text'].decode('utf-8')))
+                        except:
+                            print trueLink[1], ':', changeFile['path']
+                            print traceback.format_exc()
                     else:
-                        codes = frpreprocesser.extractCode(changeFile['text'])
+                        codes = frpreprocesser.extractCode(changeFile['text'].decode('utf-8'))
                         for code in codes:
                             if code in res['issueCode']:
                                 res['commitCode'].extend(codes)
@@ -98,9 +102,13 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                 res['commitText'].append(frpreprocesser.extractText(commit.message.decode('utf-8')))
                 for changeFile in files:
                     if not changeFile['path'].endswith('.java'):
-                        res['commitText'].append(frpreprocesser.extractText(changeFile['text']))
+                        try:
+                            res['commitText'].append(frpreprocesser.extractText(changeFile['text'].decode('utf-8')))
+                        except:
+                            print trueLink[1], ':', changeFile['path']
+                            print traceback.format_exc()
                     else:
-                        codes = frpreprocesser.extractCode(changeFile['text'])
+                        codes = frpreprocesser.extractCode(changeFile['text'].decode('utf-8'))
                         for code in codes:
                             if code in res['issueCode']:
                                 res['commitCode'].extend(codes)

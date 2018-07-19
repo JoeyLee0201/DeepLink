@@ -50,8 +50,11 @@ class GitResolver:
         result = []
         commit = self.repo.commit(sha)
         if len(commit.parents) == 1:
-            changed_files = [item.a_path for item in commit.diff(commit.parents[0])]
+            # changed_files = [item.a_path for item in commit.diff(commit.parents[0])]
+            changed_files = commit.parents[0].diff(commit)
             for changeFile in changed_files:
-                result.append({'path': changeFile, 'text': commit.tree[changeFile].data_stream.read()})
+                # print changeFile.a_path, ":", changeFile.change_type
+                if changeFile.change_type == 'A' or changeFile.change_type == 'M':
+                    result.append({'path': changeFile.a_path, 'text': commit.tree[changeFile.a_path].data_stream.read()})
         return result
 
