@@ -43,7 +43,11 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                 if issue is None:
                     continue
                 comments = mysqlOperator.selectCommentInOneIssue(trueLink[2])
-                files = repo.getFiles(trueLink[1])
+                try:
+                    files = repo.getFiles(trueLink[1])
+                except:
+                    print 'File Fail 1:', trueLink[1]
+                    continue
 
                 res = {}
                 res['type'] = 1
@@ -66,7 +70,6 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                             res['commitText'].append(frpreprocesser.extractText(changeFile['text'].decode('utf-8')))
                         except:
                             print trueLink[1], ':', changeFile['path']
-                            print traceback.format_exc()
                     else:
                         codes = frpreprocesser.extractCode(changeFile['text'].decode('utf-8'))
                         for code in codes:
@@ -83,7 +86,11 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                 if issue is None:
                     continue
                 comments = mysqlOperator.selectCommentInOneIssue(falseLink[2])
-                files = repo.getFiles(falseLink[1])
+                try:
+                    files = repo.getFiles(falseLink[1])
+                except:
+                    print 'File Fail 0:', falseLink[1]
+                    continue
 
                 res = {}
                 res['type'] = 0
@@ -106,7 +113,6 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                             res['commitText'].append(frpreprocesser.extractText(changeFile['text'].decode('utf-8')))
                         except:
                             print trueLink[1], ':', changeFile['path']
-                            print traceback.format_exc()
                     else:
                         codes = frpreprocesser.extractCode(changeFile['text'].decode('utf-8'))
                         for code in codes:
