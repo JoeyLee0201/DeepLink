@@ -16,4 +16,4 @@ REPO_MAP = [{'id': 13421878, 'path': '/home/fdse/user/rh/gitrepo/pentaho-kettle'
             {'id': 3148979, 'path': '/home/fdse/user/rh/gitrepo/spring-security',
              'trueGap': 320, 'falseGap': 15000, 'trueCount': 320, 'falseCount': 320}]#06
 
-USE_REPO_INDEX = 5
+USE_REPO_INDEX = 1
