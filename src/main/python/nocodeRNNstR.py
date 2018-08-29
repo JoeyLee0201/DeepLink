@@ -236,6 +236,10 @@ def test_epoch(session, model, batches, step):
     total_correct = 0
     total_tests = len(batches) * BATCH_SIZE
     index = 0
+    total_TP = 0
+    total_TN = 0
+    total_FP = 0
+    total_FN = 0
     for x11, x21, t1, l11, l21, lt1, y1 in batches:
         score, loss = session.run([model.cos_score, model.loss_op],
                                 feed_dict={model.input1: x11, model.input2: x21, model.inputT: t1, model.len1: l11, model.len2: l21, model.lent: lt1,
@@ -243,7 +247,14 @@ def test_epoch(session, model, batches, step):
         temp.append(loss)
         total_correct = total_correct + get_correct(score, y1, index, len(batches))
         index = index + 1
+        measure = get_measure(score, y1)
+        total_TP = total_TP + measure[0]
+        total_TN = total_TN + measure[1]
+        total_FP = total_FP + measure[2]
+        total_FN = total_FN + measure[3]
     logging.info("At the test %d, the avg loss is %f, the accuracy is %f" % (step, np.mean(np.array(temp)), float(total_correct) / total_tests))
+    logging.info("At the test %d, TP:%d TN:%d FP:%d FN:%d" % (step, total_TP,total_TN,total_FP,total_FN))
+    logging.info("At the test %d, TP:%d TN:%d FP:%d FN:%d" % (step, total_TP,total_TN,total_FP,total_FN))
     if (float(total_correct) / total_tests) > MAX_RECORD['acc']:
         MAX_RECORD['step'] = step
         MAX_RECORD['acc'] = float(total_correct) / total_tests
@@ -252,19 +263,31 @@ def test_epoch(session, model, batches, step):
 
 def get_correct(score, target, index, NUM):
     result = 0
-    zeros = 0
-    ones = 0
     for i in range(len(target)):
         if target[i][0] == 1 and score[i][0] > 0.5:
             result = result + 1
-            ones = ones + 1
         elif target[i][0] == 0 and score[i][0] < 0.5:
             result = result + 1
-            zeros = zeros + 1
-        else:
-            logging.info("%d-%d example %d : cos(%f) target(%f)" % (index, i, (NUM*i+index), score[i][0], target[i][0]))
-    logging.info("%d(0s) : %d(1s)" % (zeros, ones))
     return result
+
+
+def get_measure(score, target):
+    TP = 0
+    TN = 0
+    FP = 0
+    FN = 0
+    for i in range(len(target)):
+        if target[i][0] == 1:
+            if score[i][0] > 0.5:
+                TP = TP+1
+            else:
+                FN = FN+1
+        elif target[i][0] == 0:
+            if score[i][0] < 0.5:
+                TN = TN+1
+            else:
+                FP = FP+1
+    return TP, TN, FP, FN
 
 
 def main():
@@ -280,6 +303,7 @@ def main():
     with tf.Session() as sess:
         saver = tf.train.Saver()
         sess.run(init)
+        logging.info("Test Set: %d" % (len(test_batches) * BATCH_SIZE))
 
         for step in range(TRAIN_ITERS):
             logging.info("Step: " + str(step))

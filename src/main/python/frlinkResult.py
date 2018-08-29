@@ -58,6 +58,25 @@ def getRes(test_set, t):
     return right/size
 
 
+def evaluation(test_set, t):
+    TP = 0
+    FP = 0
+    FN = 0
+    for link in test_set:
+        if link['val'] >= t:
+            if link['type'] == 1:
+                TP += 1
+            else:
+                FP += 1
+        else:
+            if link['type'] == 1:
+                FN += 1
+    precision = float(TP) / (TP + FP)
+    recall = float(TP) / (TP + FN)
+    f_measure = (2 * precision * recall) / (precision + recall)
+    logging.info("precision:%f  recall:%f  f_measure:%f" % (precision, recall, f_measure))
+
+
 def main():
     links = read_data(path='./frlink%d/all.dat' % REPO_ID)
     logging.info("Size: "+str(len(links)))
@@ -68,6 +87,7 @@ def main():
     res = getRes(testset, t)
     logging.info(t)
     logging.info(res)
+    evaluation(testset, t)
     logging.info("Finished!")
 
 
