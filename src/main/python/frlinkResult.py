@@ -71,8 +71,8 @@ def evaluation(test_set, t):
         else:
             if link['type'] == 1:
                 FN += 1
-    precision = float(TP) / (TP + FP)
-    recall = float(TP) / (TP + FN)
+    precision = float(TP) / (TP + FP+1e-8)
+    recall = float(TP) / (TP + FN+1e-8)
     f_measure = (2 * precision * recall) / (precision + recall)
     logging.info("precision:%f  recall:%f  f_measure:%f" % (precision, recall, f_measure))
 
