@@ -28,9 +28,9 @@ def learn(list, ITR):
             else:
                 if link['type'] == 1:
                     FN += 1
-        precision = TP/(TP+FP)
-        recall = TP/(TP+FN)
-        f_measure = (2*precision*recall)/(precision + recall)
+        precision = TP/(TP+FP+1e-8)
+        recall = TP/(TP+FN+1e-8)
+        f_measure = (2*precision*recall)/(precision + recall+1e-8)
         if recall >= ITR:
             if (f_measure > F) or (f_measure == F and recall > RMax):
                 LThres = ThresVal
@@ -73,7 +73,7 @@ def evaluation(test_set, t):
                 FN += 1
     precision = float(TP) / (TP + FP+1e-8)
     recall = float(TP) / (TP + FN+1e-8)
-    f_measure = (2 * precision * recall) / (precision + recall)
+    f_measure = (2 * precision * recall) / (precision + recall+1e-8)
     logging.info("precision:%f  recall:%f  f_measure:%f" % (precision, recall, f_measure))
 
 

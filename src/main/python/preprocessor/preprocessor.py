@@ -336,7 +336,7 @@ def processDiffCode(code):
                 toDeal.append(miWord)
             for deal in toDeal:
                 if not isDelete(deal.lower()):
-                    result.append(stemmer.stem(deal))
+                    result.append(lemmatizer.lemmatize(deal.lower()))
 
     code = re.sub(r'([A-Za-z0-9_]+\.[A-Za-z0-9_]+)', '', code, 0, re.I)
     sentences = tokenizer.tokenize(code)
@@ -352,7 +352,7 @@ def processDiffCode(code):
                 toDeal.append(word)
             for deal in toDeal:
                 if not isDelete(deal.lower()):
-                    result.append(stemmer.stem(deal))
+                    result.append(lemmatizer.lemmatize(deal.lower()))
     return result
 
 
@@ -374,7 +374,7 @@ def processPreDiffCode(code):
                 toDeal.append(miWord)
             for deal in toDeal:
                 if not isDelete(deal.lower()):
-                    result.append(stemmer.stem(deal))
+                    result.append(lemmatizer.lemmatize(deal.lower()))
 
     code = re.sub(r'([A-Za-z0-9_]+\.[A-Za-z0-9_]+)', '', code, 0, re.I)
     sentences = tokenizer.tokenize(code)
@@ -390,7 +390,7 @@ def processPreDiffCode(code):
                 toDeal.append(word)
             for deal in toDeal:
                 if not isDelete(deal.lower()):
-                    result.append(stemmer.stem(deal))
+                    result.append(lemmatizer.lemmatize(deal.lower()))
     return result
 
 
@@ -438,6 +438,48 @@ def processHTML(html):
                       if not isDelete(deal.lower()):
                           result.append(stemmer.stem(deal))
       return result, preText
+
+
+def getIssueCode(html):
+    multiCodes = multiCodePattern.findall(html)
+    texts = re.sub(r'(```[\s\S]*?```)', '', html, 0, re.I)
+    singleCodes = singleCodePattern.findall(texts)
+    result = []
+    codes = multiCodes + singleCodes
+    for code in codes:
+        code = re.sub(r'(\"[\s\S]*?\")', '', code, 0, re.I)
+        mis = methodInvocationCase.findall(code)
+        for mi in mis:
+            miWords = mi.split('.')
+            for miWord in miWords:
+                toDeal = []
+                if camelCase1.match(miWord) or camelCase2.match(miWord):
+                    toDeal = splitCode(miWord)
+                elif upperExtCase.match(miWord):
+                    toDeal = splitFinalExt(miWord)
+                elif upperCase.match(miWord):
+                    toDeal.append(miWord)
+                else:
+                    toDeal.append(miWord)
+                for deal in toDeal:
+                    if not isDelete(deal.lower()):
+                        result.append(lemmatizer.lemmatize(deal.lower()))
+        code = re.sub(r'([A-Za-z0-9_]+\.[A-Za-z0-9_]+)', '', code, 0, re.I)
+        sentences = tokenizer.tokenize(code)
+        for sentence in sentences:
+            words = nltk.regexp_tokenize(sentence, pattern)
+            for word in words:
+                toDeal = []
+                if camelCase1.match(word) or camelCase2.match(word):
+                    toDeal = splitCode(word)
+                elif upperExtCase.match(word):
+                    toDeal = splitFinalExt(word)
+                elif upperCase.match(word):
+                    toDeal.append(word)
+                for deal in toDeal:
+                    if not isDelete(deal.lower()):
+                        result.append(lemmatizer.lemmatize(deal.lower()))
+    return result
 
 
 def processHTMLByTag(html):
