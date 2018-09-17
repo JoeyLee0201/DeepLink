@@ -7,11 +7,10 @@ import numpy as np
 import logging
 import os
 import json
-import nocodeRepoInfo
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-VECTOR_SIZE = nocodeRepoInfo.VECTOR_SIZE
+VECTOR_SIZE = 100
 TRAIN_ITERS = 100
 BATCH_SIZE = 128
 HIDDEN_SIZE = 100
@@ -20,7 +19,7 @@ LEARNING_RATE = 0.001
 
 LSTM_KEEP_PROB = 0.9
 
-REPO_ID = nocodeRepoInfo.REPO_MAP[nocodeRepoInfo.USE_REPO_INDEX]['id']
+REPO_ID = 13421878
 MAX_RECORD = {'step': -1, 'acc': 0.0}
 MAX_PRECISION = {'step': -1, 'acc': 0.0}
 MAX_RECALL = {'step': -1, 'acc': 0.0}
@@ -53,6 +52,10 @@ def code2vec(text):
                 res.append(codeModel[word])
             except KeyError:
                 res.append(np.zeros(VECTOR_SIZE))
+    if len(res) > 0:
+        pass
+    else:
+        res.append(np.zeros(VECTOR_SIZE))
     return res
 
 
