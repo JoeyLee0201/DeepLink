@@ -67,13 +67,6 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                 my_res['commitcode'] = diffCodes
                 my_linkList.append(my_res)
 
-                comments = mysqlOperator.selectCommentInOneIssue(trueLink[2])
-                try:
-                    files = repo.getFiles(trueLink[1])
-                except:
-                    print 'File Fail 1:', trueLink[1]
-                    continue
-
                 fr_res = {}
                 fr_res['type'] = 1
                 fr_res['issueText'] = []
@@ -84,23 +77,29 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                 else:
                     fr_res['issueCode'] = []
                 fr_res['issueText'].append(frpreprocesser.extractText(issue[4].decode('utf-8')))  # title
-                for comment in comments:
-                    fr_res['issueText'].append(frpreprocesser.extractText(comment[4].decode('utf-8')))
                 fr_res['commitText'] = []
                 fr_res['commitCode'] = []
                 fr_res['commitText'].append(frpreprocesser.extractText(commit.message.decode('utf-8')))
-                for changeFile in files:
-                    if not changeFile['path'].endswith('.java'):
-                        try:
-                            fr_res['commitText'].append(frpreprocesser.extractText(changeFile['text'].decode('utf-8')))
-                        except:
-                            print trueLink[1], ':', changeFile['path']
-                    else:
-                        codes = frpreprocesser.extractCode(changeFile['text'].decode('utf-8'))
-                        for code in codes:
-                            if code in fr_res['issueCode']:
-                                fr_res['commitCode'].extend(codes)
-                                break
+                comments = mysqlOperator.selectCommentInOneIssue(trueLink[2])
+                for comment in comments:
+                    fr_res['issueText'].append(frpreprocesser.extractText(comment[4].decode('utf-8')))
+                try:
+                    files = repo.getFiles(trueLink[1])
+                    for changeFile in files:
+                        if not changeFile['path'].endswith('.java'):
+                            try:
+                                fr_res['commitText'].append(
+                                    frpreprocesser.extractText(changeFile['text'].decode('utf-8')))
+                            except:
+                                print trueLink[1], ':', changeFile['path']
+                        else:
+                            codes = frpreprocesser.extractCode(changeFile['text'].decode('utf-8'))
+                            for code in codes:
+                                if code in fr_res['issueCode']:
+                                    fr_res['commitCode'].extend(codes)
+                                    break
+                except:
+                    print 'File Fail 1:', trueLink[1]
                 fr_linkList.append(fr_res)
                 writeToCorpus(textCorpus, codeCorpus, fr_res['commitText'], fr_res['commitCode'])
                 writeToCorpus(textCorpus, codeCorpus, fr_res['issueText'], fr_res['issueCode'])
@@ -136,13 +135,6 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                 my_res['commitcode'] = diffCodes
                 my_linkList.append(my_res)
 
-                comments = mysqlOperator.selectCommentInOneIssue(falseLink[2])
-                try:
-                    files = repo.getFiles(falseLink[1])
-                except:
-                    print 'File Fail 0:', falseLink[1]
-                    continue
-
                 fr_res = {}
                 fr_res['type'] = 0
                 fr_res['issueText'] = []
@@ -153,23 +145,29 @@ def buildTrainSet(trueTable, falseTable, repoId, repoPath, trueGap, falseGap, tr
                 else:
                     fr_res['issueCode'] = []
                 fr_res['issueText'].append(frpreprocesser.extractText(issue[4].decode('utf-8')))  # title
-                for comment in comments:
-                    fr_res['issueText'].append(frpreprocesser.extractText(comment[4].decode('utf-8')))
                 fr_res['commitText'] = []
                 fr_res['commitCode'] = []
                 fr_res['commitText'].append(frpreprocesser.extractText(commit.message.decode('utf-8')))
-                for changeFile in files:
-                    if not changeFile['path'].endswith('.java'):
-                        try:
-                            fr_res['commitText'].append(frpreprocesser.extractText(changeFile['text'].decode('utf-8')))
-                        except:
-                            print trueLink[1], ':', changeFile['path']
-                    else:
-                        codes = frpreprocesser.extractCode(changeFile['text'].decode('utf-8'))
-                        for code in codes:
-                            if code in fr_res['issueCode']:
-                                fr_res['commitCode'].extend(codes)
-                                break
+                comments = mysqlOperator.selectCommentInOneIssue(falseLink[2])
+                for comment in comments:
+                    fr_res['issueText'].append(frpreprocesser.extractText(comment[4].decode('utf-8')))
+                try:
+                    files = repo.getFiles(falseLink[1])
+                    for changeFile in files:
+                        if not changeFile['path'].endswith('.java'):
+                            try:
+                                fr_res['commitText'].append(
+                                    frpreprocesser.extractText(changeFile['text'].decode('utf-8')))
+                            except:
+                                print trueLink[1], ':', changeFile['path']
+                        else:
+                            codes = frpreprocesser.extractCode(changeFile['text'].decode('utf-8'))
+                            for code in codes:
+                                if code in fr_res['issueCode']:
+                                    fr_res['commitCode'].extend(codes)
+                                    break
+                except:
+                    print 'File Fail 0:', falseLink[1]
                 fr_linkList.append(fr_res)
                 writeToCorpus(textCorpus, codeCorpus, fr_res['commitText'], fr_res['commitCode'])
                 writeToCorpus(textCorpus, codeCorpus, fr_res['issueText'], fr_res['issueCode'])
@@ -223,8 +221,8 @@ if __name__ == '__main__':
         os.makedirs(fr_folder)
     if not os.path.exists(my_folder):
         os.makedirs(my_folder)
-    if not os.path.exists(os.getcwd() + 'frcorpus'):
-        os.makedirs(os.getcwd() + 'frcorpus')
+    if not os.path.exists(os.getcwd() + '/frcorpus'):
+        os.makedirs(os.getcwd() + '/frcorpus')
     buildTrainSet('true_link_%d' % repo_id, 'false_link_%d' % repo_id, repo_id, repo_path,
                   nocodeRepoInfo.REPO_MAP[nocodeRepoInfo.USE_REPO_INDEX]['trueGap'],
                   nocodeRepoInfo.REPO_MAP[nocodeRepoInfo.USE_REPO_INDEX]['falseGap'],
